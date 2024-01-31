@@ -10,6 +10,8 @@ public class Player : NetworkBehaviour
 
     [SyncVar] public ulong networkSteamID = 0L;
 
+    public PlayerMove playerMove = null;
+
 
     private IEnumerator Start()
     {
@@ -47,9 +49,15 @@ public class Player : NetworkBehaviour
                 if (playerIdentity.networkSteamID == networkSteamID)
                 {
                     Debug.LogError($"玩家[{playerIdentity.networkSteamName}]已生成。");
-                    isInitialized = true;
                     identity = playerIdentity;
+                    isInitialized = true;
                     playerIdentity.player = this;
+                    playerMove.Initialize(this);
+                    if (hasAuthority)
+                    {
+                        CameraController.Instance.SetTarget(transform);
+                    }
+
                     break;
                 }
             }
