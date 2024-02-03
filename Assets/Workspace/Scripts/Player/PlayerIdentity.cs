@@ -89,9 +89,13 @@ public class PlayerIdentity : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void SpawnPlayerServerRPC(NetworkConnectionToClient conn = null)
     {
-        GameObject player = Instantiate(prefabPlayer);
-        player.GetComponent<Player>().networkSteamID = networkSteamID;
-        NetworkServer.Spawn(player, conn);
+        GameObject gameObject = Instantiate(prefabPlayer);
+        Player player = gameObject.GetComponent<Player>();
+        player.networkSteamID = networkSteamID;
+        player.playerAppearance.color =
+            new Color(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 1f);
+        player.transform.position = new Vector3(Random.Range(-5f, 5f), 0f, Random.Range(-5f, 5f));
+        NetworkServer.Spawn(gameObject, conn);
     }
 
 

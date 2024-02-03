@@ -10,6 +10,8 @@ public class Player : NetworkBehaviour
 
     [SyncVar] public ulong networkSteamID = 0L;
 
+    public PlayerAppearance playerAppearance = null;
+
     public PlayerMove playerMove = null;
 
 
@@ -39,6 +41,21 @@ public class Player : NetworkBehaviour
     }
 
 
+    [ClientRpc]
+    private void GenerateMapClientRPC(string json)
+    {
+        MapManager.Instance.GenerateOnClient(json);
+    }
+
+
+    [Command(requiresAuthority = false)]
+    public void GenerateMapServerRPC()
+    {
+        string json = MapManager.Instance.GenerateOnServer(12, 12);
+        GenerateMapClientRPC(json);
+    }
+
+
     private IEnumerator Initialize()
     {
         while (!isInitialized)
@@ -49,13 +66,19 @@ public class Player : NetworkBehaviour
                 if (playerIdentity.networkSteamID == networkSteamID)
                 {
                     Debug.LogError($"玩家[{playerIdentity.networkSteamName}]已生成。");
-                    identity = playerIdentity;
-                    isInitialized = true;
-                    playerIdentity.player = this;
-                    playerMove.Initialize(this);
                     if (hasAuthority)
                     {
                         CameraController.Instance.SetTarget(transform);
+                    }
+
+                    identity = playerIdentity;
+                    isInitialized = true;
+                    playerAppearance.Initialize();
+                    playerIdentity.player = this;
+                    playerMove.Initialize(this);
+                    if (isServer)
+                    {
+                        PlayerMove.IsEnabled = true;
                     }
 
                     break;

@@ -4,12 +4,16 @@ public class Test : MonoBehaviour
 {
     private void Start()
     {
-        InvokeRepeating(nameof(Teleport), 3f, 3f);
+        //InvokeRepeating(nameof(Teleport), 3f, 3f);
     }
 
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            PlayerIdentity.Local.player.GenerateMapServerRPC();
+        }
     }
 
 

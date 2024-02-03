@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PlayerMove : NetworkBehaviour
 {
+    public static bool IsEnabled = false;
+
     [Range(0f, 10f)] public float speed = 4f;
 
     private bool isInitialized = false;
@@ -48,7 +50,7 @@ public class PlayerMove : NetworkBehaviour
 
     private void Move()
     {
-        if (!hasAuthority || !isInitialized)
+        if (!IsEnabled || !hasAuthority || !isInitialized)
         {
             return;
         }
@@ -63,5 +65,17 @@ public class PlayerMove : NetworkBehaviour
         {
             rigidbody.velocity = Vector3.zero;
         }
+    }
+
+
+    [ClientRpc]
+    public void TeleportClientRPC(Vector3 position)
+    {
+        if (!hasAuthority)
+        {
+            return;
+        }
+
+        transform.position = position;
     }
 }
