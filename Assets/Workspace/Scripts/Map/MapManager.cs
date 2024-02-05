@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MapManager : MonoBehaviour
 {
     #region
-    
+
     public class Cell
     {
         public Type type = Type.Null;
@@ -32,12 +33,14 @@ public class MapManager : MonoBehaviour
         EmptyInside = 3,
         EmptyOutside = 4
     }
-    
+
     #endregion
 
     public static MapManager Instance = null;
 
     public float cellSize = 1f;
+
+    public Transform parentCubes = null;
 
     public Transform parentGrids = null;
 
@@ -45,7 +48,11 @@ public class MapManager : MonoBehaviour
 
     public GameObject prefabImage = null;
 
+    private GameObject[,] cubes = null;
+
     private Data data = null;
+
+    private Image[,] grids = null;
 
 
     private void Awake()
@@ -54,10 +61,84 @@ public class MapManager : MonoBehaviour
     }
 
 
+    private void CreateCube(int x, int y, Color color)
+    {
+        Transform cube = Instantiate(prefabCube, parentCubes).transform;
+        cube.position = GetPositionByCoordinate(x, y) + new Vector3(0f, cellSize / 2f, 0f);
+        cube.localScale = new Vector3(0.9f, 1f, 0.9f) * cellSize;
+        cube.GetComponent<MeshRenderer>().material.color = color;
+        cube.GetComponent<BoxCollider>().enabled = false;
+        cubes[x, y] = cube.gameObject;
+    }
+
+
+    private void CreateGrid(int x, int y)
+    {
+        Transform grid = Instantiate(prefabImage, parentGrids).transform;
+        grid.position = GetPositionByCoordinate(x, y) + new Vector3(0f, 0.01f, 0f);
+        grid.rotation = Quaternion.Euler(90f, 0f, 0f);
+        grid.localScale = new Vector3(0.9f, 0.9f, 1f) * cellSize;
+        grids[x, y] = grid.GetComponent<Image>();
+        grids[x, y].color = new Color(0f, 0f, 0f, 0.6f);
+    }
+
+
     public void GenerateOnClient(string json)
     {
+        float playerRadius = 0.2f;
+        float wallThickness = 20f;
+        Vector3 floorSize = new Vector3((data.width + 2) * cellSize, 1f, (data.height + 2) * cellSize);
+        Transform floor = Instantiate(prefabCube, parentCubes).transform;
+        floor.gameObject.name = "Floor";
+        floor.position = new Vector3(0f, -0.5f, 0f);
+        floor.localScale = floorSize;
+        floor.GetComponent<MeshRenderer>().material.color = new Color(0.9f, 0.9f, 0.9f);
+        Transform wall = Instantiate(prefabCube, parentCubes).transform;
+        wall.gameObject.name = "Bottom Wall";
+        wall.position = new Vector3(0f, 0f, -floorSize.z / 2f - playerRadius - wallThickness / 2f);
+        wall.localScale = new Vector3(floorSize.x + playerRadius * 2f + wallThickness * 2f, cellSize * 2f,
+            wallThickness);
+        wall.GetComponent<MeshRenderer>().enabled = false;
+        wall = Instantiate(prefabCube, parentCubes).transform;
+        wall.gameObject.name = "Top Wall";
+        wall.position = new Vector3(0f, 0f, +floorSize.z / 2f + playerRadius + wallThickness / 2f);
+        wall.localScale = new Vector3(floorSize.x + playerRadius * 2f + wallThickness * 2f, cellSize * 2f,
+            wallThickness);
+        wall.GetComponent<MeshRenderer>().enabled = false;
+        wall = Instantiate(prefabCube, parentCubes).transform;
+        wall.gameObject.name = "Left Wall";
+        wall.position = new Vector3(-floorSize.x / 2f - playerRadius - wallThickness / 2f, 0f, 0f);
+        wall.localScale =
+            new Vector3(wallThickness, cellSize * 2f, floorSize.z + playerRadius * 2f + wallThickness * 2f);
+        wall.GetComponent<MeshRenderer>().enabled = false;
+        wall = Instantiate(prefabCube, parentCubes).transform;
+        wall.gameObject.name = "Right Wall";
+        wall.position = new Vector3(floorSize.x / 2f + playerRadius + wallThickness / 2f, 0f, 0f);
+        wall.localScale =
+            new Vector3(wallThickness, cellSize * 2f, floorSize.z + playerRadius * 2f + wallThickness * 2f);
+        wall.GetComponent<MeshRenderer>().enabled = false;
+        cubes = new GameObject[data.width, data.height];
         data = JsonConvert.DeserializeObject<Data>(json);
-        Debug.LogError(json);
+        grids = new Image[data.width, data.height];
+        for (int x = 0; x < data.width; ++x)
+        {
+            for (int y = 0; y < data.height; ++y)
+            {
+                switch (data.cells[x, y].type)
+                {
+                    case Type.BlockDestructible:
+                        CreateCube(x, y, Color.yellow);
+                        CreateGrid(x, y);
+                        break;
+                    case Type.BlockIndestructible:
+                        CreateCube(x, y, Color.white);
+                        break;
+                    case Type.EmptyInside:
+                        CreateGrid(x, y);
+                        break;
+                }
+            }
+        }
     }
 
 
@@ -93,7 +174,7 @@ public class MapManager : MonoBehaviour
             float radian = startRadian + deltaRadian * a;
             Vector2Int coordinate =
                 GetCoordinateByPosition(new Vector3(Mathf.Cos(radian), 0f, Mathf.Sin(radian)) * radius);
-            playerList[a].player.playerMove.TeleportClientRPC(GetPositionByCoordinate(coordinate));
+            playerList[a].player.playerMove.TeleportClientRPC(GetPositionByCoordinate(coordinate), false);
             SetCell(coordinate.x - 1, coordinate.y, Type.EmptyInside);
             SetCell(coordinate.x, coordinate.y - 1, Type.EmptyInside);
             SetCell(coordinate.x, coordinate.y, Type.EmptyInside);

@@ -69,9 +69,9 @@ public class PlayerMove : NetworkBehaviour
 
 
     [ClientRpc]
-    public void TeleportClientRPC(Vector3 position)
+    public void TeleportClientRPC(Vector3 position, bool requireAuthority)
     {
-        if (!hasAuthority)
+        if (requireAuthority && !hasAuthority)
         {
             return;
         }
