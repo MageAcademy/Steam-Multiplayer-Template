@@ -23,6 +23,8 @@ public class CameraController : MonoBehaviour
 
     private Vector3 offset = new Vector3();
 
+    private float positionY = 0f;
+
     private Transform target = null;
 
 
@@ -52,6 +54,7 @@ public class CameraController : MonoBehaviour
         if (target == null)
         {
             lastTargetPosition = cameraPosition.position;
+            lastTargetPosition.y = 0f;
             return;
         }
 
@@ -61,10 +64,13 @@ public class CameraController : MonoBehaviour
         }
 
         Vector3 currentTargetPosition = target.position;
+        currentTargetPosition.y = 0f;
         if (Vector3.Distance(currentTargetPosition, lastTargetPosition) < teleportThreshold)
         {
-            Apply(currentTargetPosition);
             lastTargetPosition = currentTargetPosition;
+            positionY = Mathf.Lerp(positionY, target.position.y, Time.deltaTime * 6f);
+            currentTargetPosition.y = positionY;
+            Apply(currentTargetPosition);
         }
         else
         {
@@ -77,6 +83,8 @@ public class CameraController : MonoBehaviour
             {
                 isTweening = false;
                 lastTargetPosition = target.position;
+                positionY = lastTargetPosition.y;
+                lastTargetPosition.y = 0f;
             };
         }
     }
@@ -91,6 +99,7 @@ public class CameraController : MonoBehaviour
 
     public void SetTarget(Transform target)
     {
+        positionY = target.position.y;
         this.target = target;
     }
 }

@@ -208,6 +208,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  layerFloor:
+    serializedVersion: 2
+    m_Bits: 128
   speed: 4
 --- !u!95 &3946797876118791845
 Animator:
