@@ -93,6 +93,7 @@ public class MapManager : MonoBehaviour
         floor.position = new Vector3(0f, -0.5f, 0f);
         floor.localScale = floorSize;
         floor.GetComponent<MeshRenderer>().material.color = new Color(0.9f, 0.9f, 0.9f);
+        floor.GetComponent<BoxCollider>().enabled = false;
         Transform wall = Instantiate(prefabCube, parentCubes).transform;
         wall.gameObject.name = "Bottom Wall";
         wall.position = new Vector3(0f, 0f, -floorSize.z / 2f - playerRadius - wallThickness / 2f);
