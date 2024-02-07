@@ -9,6 +9,8 @@ public class PlayerMove : NetworkBehaviour
 
     public LayerMask layerFloor = new LayerMask();
 
+    [SyncVar] public Vector2Int networkCoordinate = new Vector2Int(-1, -1);
+
     [Range(0f, 10f)] public float speed = 4f;
 
     private bool isInitialized = false;
@@ -20,7 +22,7 @@ public class PlayerMove : NetworkBehaviour
 
     private void Update()
     {
-        Move();
+        RefreshCoordinateOnServer();
         RefreshPositionY();
     }
 
@@ -28,6 +30,7 @@ public class PlayerMove : NetworkBehaviour
     private void FixedUpdate()
     {
         ClearAngularVelocity();
+        Move();
     }
 
 
@@ -80,6 +83,18 @@ public class PlayerMove : NetworkBehaviour
         }
 
         transform.position = position;
+    }
+
+
+    [ServerCallback]
+    private void RefreshCoordinateOnServer()
+    {
+        if (!isInitialized || !isServer)
+        {
+            return;
+        }
+
+        networkCoordinate = MapManager.Instance.GetCoordinateByPosition(transform.position);
     }
 
 

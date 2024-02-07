@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -40,6 +41,10 @@ public class MapManager : MonoBehaviour
 
     public float cellSize = 1f;
 
+    public Color colorHighlightedGrid = new Color(1f, 1f, 1f, 100f / 255f);
+
+    public Color colorNormalGrid = new Color(0f, 0f, 0f, 10f / 255f);
+
     public Transform parentCubes = null;
 
     public Transform parentGrids = null;
@@ -54,6 +59,10 @@ public class MapManager : MonoBehaviour
 
     private Image[,] grids = null;
 
+    private bool isLastValid = false;
+
+    private Vector2Int lastCoordinate = new Vector2Int();
+
 
     private void Awake()
     {
@@ -67,7 +76,6 @@ public class MapManager : MonoBehaviour
         cube.position = GetPositionByCoordinate(x, y) + new Vector3(0f, cellSize / 2f, 0f);
         cube.localScale = new Vector3(0.9f, 1f, 0.9f) * cellSize;
         cube.GetComponent<MeshRenderer>().material.color = color;
-        cube.GetComponent<BoxCollider>().enabled = false;
         cubes[x, y] = cube.gameObject;
     }
 
@@ -79,21 +87,16 @@ public class MapManager : MonoBehaviour
         grid.rotation = Quaternion.Euler(90f, 0f, 0f);
         grid.localScale = new Vector3(0.9f, 0.9f, 1f) * cellSize;
         grids[x, y] = grid.GetComponent<Image>();
-        grids[x, y].color = new Color(0f, 0f, 0f, 0.6f);
+        grids[x, y].color = colorNormalGrid;
     }
 
 
     public void GenerateOnClient(string json)
     {
+        data = JsonConvert.DeserializeObject<Data>(json);
         float playerRadius = 0.2f;
         float wallThickness = 20f;
-        Vector3 floorSize = new Vector3((data.width + 2) * cellSize, 1f, (data.height + 2) * cellSize);
-        Transform floor = Instantiate(prefabCube, parentCubes).transform;
-        floor.gameObject.name = "Floor";
-        floor.position = new Vector3(0f, -0.5f, 0f);
-        floor.localScale = floorSize;
-        floor.GetComponent<MeshRenderer>().material.color = new Color(0.9f, 0.9f, 0.9f);
-        floor.GetComponent<BoxCollider>().enabled = false;
+        Vector3 floorSize = new Vector3(data.width * cellSize, 1f, data.height * cellSize);
         Transform wall = Instantiate(prefabCube, parentCubes).transform;
         wall.gameObject.name = "Bottom Wall";
         wall.position = new Vector3(0f, 0f, -floorSize.z / 2f - playerRadius - wallThickness / 2f);
@@ -119,7 +122,6 @@ public class MapManager : MonoBehaviour
             new Vector3(wallThickness, cellSize * 2f, floorSize.z + playerRadius * 2f + wallThickness * 2f);
         wall.GetComponent<MeshRenderer>().enabled = false;
         cubes = new GameObject[data.width, data.height];
-        data = JsonConvert.DeserializeObject<Data>(json);
         grids = new Image[data.width, data.height];
         for (int x = 0; x < data.width; ++x)
         {
@@ -140,6 +142,8 @@ public class MapManager : MonoBehaviour
                 }
             }
         }
+
+        StartCoroutine(RefreshGridAsync());
     }
 
 
@@ -157,7 +161,7 @@ public class MapManager : MonoBehaviour
             {
                 data.cells[x, y] = new Cell
                 {
-                    type = (Type)Random.Range(1, 5),
+                    type = (Type)3,
                     x = x,
                     y = y
                 };
@@ -197,14 +201,18 @@ public class MapManager : MonoBehaviour
 
     public Vector2Int GetCoordinateByPosition(Vector3 position)
     {
-        return new Vector2Int((int)((position.x + data.width * cellSize / 2f) / cellSize),
-            (int)((position.z + data.height * cellSize / 2f) / cellSize));
+        return data == null
+            ? new Vector2Int(-1, -1)
+            : new Vector2Int((int)((position.x + data.width * cellSize / 2f) / cellSize),
+                (int)((position.z + data.height * cellSize / 2f) / cellSize));
     }
 
 
     public Vector3 GetPositionByCoordinate(int x, int y)
     {
-        return new Vector3(x - data.width / 2f + 0.5f, 0f, y - data.height / 2f + 0.5f) * cellSize;
+        return data == null
+            ? Vector3.zero
+            : new Vector3(x - data.width / 2f + 0.5f, 0f, y - data.height / 2f + 0.5f) * cellSize;
     }
 
 
@@ -216,7 +224,7 @@ public class MapManager : MonoBehaviour
 
     public bool IsCoordinateValid(int x, int y)
     {
-        return x >= 0 && x < data.width && y >= 0 && y < data.height;
+        return data != null && x >= 0 && x < data.width && y >= 0 && y < data.height;
     }
 
 
@@ -229,6 +237,44 @@ public class MapManager : MonoBehaviour
     public bool IsPositionValid(Vector3 position)
     {
         return IsCoordinateValid(GetCoordinateByPosition(position));
+    }
+
+
+    private IEnumerator RefreshGridAsync()
+    {
+        while (PlayerIdentity.Local != null)
+        {
+            Vector2Int currentCoordinate = PlayerIdentity.Local.player.playerMove.networkCoordinate;
+            bool isCurrentValid = IsCoordinateValid(currentCoordinate);
+            Type cellType = isCurrentValid ? data.cells[currentCoordinate.x, currentCoordinate.y].type : Type.Null;
+            isCurrentValid = isCurrentValid && (cellType == Type.BlockDestructible || cellType == Type.EmptyInside);
+            if (isCurrentValid)
+            {
+                if (isLastValid)
+                {
+                    if (currentCoordinate != lastCoordinate)
+                    {
+                        grids[currentCoordinate.x, currentCoordinate.y].color = colorHighlightedGrid;
+                        grids[lastCoordinate.x, lastCoordinate.y].color = colorNormalGrid;
+                    }
+                }
+                else
+                {
+                    grids[currentCoordinate.x, currentCoordinate.y].color = colorHighlightedGrid;
+                }
+            }
+            else
+            {
+                if (isLastValid)
+                {
+                    grids[lastCoordinate.x, lastCoordinate.y].color = colorNormalGrid;
+                }
+            }
+
+            isLastValid = isCurrentValid;
+            lastCoordinate = currentCoordinate;
+            yield return null;
+        }
     }
 
 

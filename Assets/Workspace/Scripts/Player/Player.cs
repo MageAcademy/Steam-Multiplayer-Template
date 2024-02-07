@@ -51,7 +51,7 @@ public class Player : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void GenerateMapServerRPC()
     {
-        string json = MapManager.Instance.GenerateOnServer(12, 12);
+        string json = MapManager.Instance.GenerateOnServer(20, 20);
         GenerateMapClientRPC(json);
     }
 
@@ -69,6 +69,7 @@ public class Player : NetworkBehaviour
                     if (hasAuthority)
                     {
                         CameraController.Instance.SetTarget(transform);
+                        PlayerMove.IsEnabled = true;
                     }
 
                     identity = playerIdentity;
@@ -76,11 +77,6 @@ public class Player : NetworkBehaviour
                     playerAppearance.Initialize();
                     playerIdentity.player = this;
                     playerMove.Initialize(this);
-                    if (isServer)
-                    {
-                        PlayerMove.IsEnabled = true;
-                    }
-
                     break;
                 }
             }
