@@ -6,8 +6,6 @@ using UnityEngine.UI;
 
 public class MapManager : MonoBehaviour
 {
-    #region
-
     public class Cell
     {
         public Type type = Type.Null;
@@ -34,8 +32,6 @@ public class MapManager : MonoBehaviour
         EmptyInside = 3,
         EmptyOutside = 4
     }
-
-    #endregion
 
     public static MapManager Instance = null;
 
@@ -191,8 +187,6 @@ public class MapManager : MonoBehaviour
     }
 
 
-    #region
-
     public Type GetCell(int x, int y)
     {
         return IsCoordinateValid(x, y) ? data.cells[x, y].type : Type.Null;
@@ -287,6 +281,4 @@ public class MapManager : MonoBehaviour
 
         data.cells[x, y].type = type;
     }
-
-    #endregion
 }

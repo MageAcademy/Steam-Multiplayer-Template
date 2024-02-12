@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Profiler : MonoBehaviour
 {
-    public int targetFrameRate = 120;
-
     public TextMeshProUGUI textProfiler = null;
 
     private int frameCount = 0;
@@ -13,7 +11,6 @@ public class Profiler : MonoBehaviour
 
     private void Awake()
     {
-        Application.targetFrameRate = targetFrameRate;
         DontDestroyOnLoad(gameObject);
     }
 

@@ -12,7 +12,15 @@ public class Player : NetworkBehaviour
 
     public PlayerAppearance playerAppearance = null;
 
+    public Transform playerCenter = null;
+
+    public PlayerHud playerHud = null;
+
     public PlayerMove playerMove = null;
+
+    public Transform playerTop = null;
+
+    public PlayerProperty prop = null;
 
 
     private IEnumerator Start()
@@ -36,7 +44,7 @@ public class Player : NetworkBehaviour
 
         if (identity == null)
         {
-            DestroyImmediate(this);
+            Destroy(gameObject);
         }
     }
 
@@ -72,14 +80,55 @@ public class Player : NetworkBehaviour
                         PlayerMove.IsEnabled = true;
                     }
 
+                    playerIdentity.player = this;
                     identity = playerIdentity;
                     isInitialized = true;
                     playerAppearance.Initialize();
-                    playerIdentity.player = this;
+                    playerHud = PlayerHudManager.Instance.GetPlayerHud(this);
                     playerMove.Initialize(this);
+                    prop.Initialize(this);
                     break;
                 }
             }
+        }
+    }
+
+
+    [Command(requiresAuthority = false)]
+    public void DebugSetProp(int key)
+    {
+        switch (key)
+        {
+            case 1:
+                prop.SetRemainingBombCountOnServer(prop.remainingBombCount - 1);
+                break;
+            case 2:
+                prop.SetRemainingBombCountOnServer(prop.remainingBombCount + 1);
+                break;
+            case 3:
+                prop.SetBombCountOnServer(prop.bombCount - 1);
+                break;
+            case 4:
+                prop.SetBombCountOnServer(prop.bombCount + 1);
+                break;
+            case 5:
+                prop.SetHealthOnServer(prop.health - Random.Range(0f, 1000f));
+                break;
+            case 6:
+                prop.SetHealthOnServer(prop.health + Random.Range(0f, 1000f));
+                break;
+            case 7:
+                prop.SetShieldOnServer(prop.shield - Random.Range(0f, 1250f));
+                break;
+            case 8:
+                prop.SetShieldOnServer(prop.shield + Random.Range(0f, 1250f));
+                break;
+            case 9:
+                prop.SetShieldLevelOnServer(prop.shieldLevel - 1);
+                break;
+            case 0:
+                prop.SetShieldLevelOnServer(prop.shieldLevel + 1);
+                break;
         }
     }
 }
