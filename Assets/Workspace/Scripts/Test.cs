@@ -29,12 +29,9 @@ public class Test : MonoBehaviour
             GraphicsQuality.Instance.Change(3);
         }
 
-        for (int a = 48; a <= 57; ++a)
+        if (Input.GetKeyDown(KeyCode.Keypad4))
         {
-            if (Input.GetKeyDown((KeyCode)a))
-            {
-                PlayerIdentity.Local?.player?.DebugSetProp(a - 48);
-            }
+            PlayerIdentity.Local?.player?.prop.TakeDamageOnServer(null, Random.Range(0f, 1000f));
         }
     }
 }

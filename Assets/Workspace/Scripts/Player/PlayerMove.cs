@@ -11,8 +11,6 @@ public class PlayerMove : NetworkBehaviour
 
     [SyncVar] public Vector2Int networkCoordinate = new Vector2Int(-1, -1);
 
-    [Range(0f, 10f)] public float speed = 4f;
-
     private bool isInitialized = false;
 
     private Player player = null;
@@ -64,7 +62,7 @@ public class PlayerMove : NetworkBehaviour
         Vector3 direction = InputManager.MoveValue;
         if (InputManager.IsMoveValid)
         {
-            rigidbody.velocity = direction * speed;
+            rigidbody.velocity = direction * player.prop.moveSpeed;
             transform.forward = direction;
         }
         else

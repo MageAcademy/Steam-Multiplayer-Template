@@ -281,7 +281,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   networkCoordinate: {x: -1, y: -1}
-  speed: 4
 --- !u!114 &-4212991811704288162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,9 +295,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0
+  type: 3
   remainingBombCount: 1
   bombCount: 1
   health: 1000
+  moveSpeed: 4
   shield: 500
   shieldLevel: 2
 --- !u!95 &3946797876118791845

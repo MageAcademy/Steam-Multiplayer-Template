@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 
-public class PlayerProperty : NetworkBehaviour
+public class PlayerProperty : Unit
 {
     public const int MAX_BOMB_COUNT = 5;
 
@@ -23,6 +23,8 @@ public class PlayerProperty : NetworkBehaviour
 
     [SyncVar(hook = nameof(OnHealthChange))]
     public float health = MAX_HEALTH;
+
+    [SyncVar] public float moveSpeed = 4f;
 
     [SyncVar(hook = nameof(OnShieldChange))]
     public float shield = MIN_SHIELD_LEVEL * SHIELD_PER_LEVEL;
