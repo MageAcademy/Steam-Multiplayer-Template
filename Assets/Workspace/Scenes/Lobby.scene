@@ -1503,6 +1503,9 @@ MonoBehaviour:
   cellSize: 1
   colorHighlightedGrid: {r: 1, g: 1, b: 1, a: 0.39215687}
   colorNormalGrid: {r: 0, g: 0, b: 0, a: 0.039215688}
+  layerFloor:
+    serializedVersion: 2
+    m_Bits: 128
   parentCubes: {fileID: 403252237}
   parentGrids: {fileID: 996981056}
   prefabCube: {fileID: 3008872494993849339, guid: 8408fea134d51c642a0956ef05cc4aaf, type: 3}
@@ -2074,6 +2077,7 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs:
+  - {fileID: 2012568567806646091, guid: fff8521bdcc12a34bb54db8ccd541d91, type: 3}
   - {fileID: 7381077869258326426, guid: db1c5091a666dbb4a83e89a57171504a, type: 3}
 --- !u!1 &1749043986
 GameObject:
@@ -2284,8 +2288,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1876762340}
-  - component: {fileID: 1876762339}
   - component: {fileID: 1876762341}
+  - component: {fileID: 1876762339}
   m_Layer: 0
   m_Name: Input Manager
   m_TagString: Untagged
@@ -2350,6 +2354,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 337a3794-a818-41ca-bd1d-ab389610bfef
     m_ActionName: Default/Look[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1876762341}
+        m_TargetAssemblyTypeName: InputManager, Assembly-CSharp
+        m_MethodName: OnPlantBomb
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 341474d1-78ed-4668-a261-d387b4d542e7
+    m_ActionName: Default/Plant Bomb[/Keyboard/space]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Default

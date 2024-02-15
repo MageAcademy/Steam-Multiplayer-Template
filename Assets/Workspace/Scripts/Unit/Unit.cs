@@ -12,6 +12,8 @@ public class Unit : NetworkBehaviour
         Null
     }
 
+    public bool isDead = false;
+
     public Type type = Type.Null;
 
 
@@ -40,12 +42,24 @@ public class Unit : NetworkBehaviour
                 }
             }
         }
+
+        if (destination.type == Type.Bomb)
+        {
+            Bomb bomb = destination as Bomb;
+            bomb.DieOnServer();
+        }
     }
 
 
     [ServerCallback]
-    public void DieOnServer()
+    public virtual void DieOnServer()
     {
+        if (isDead)
+        {
+            return;
+        }
+
+        isDead = true;
         Debug.LogError($"[{type}] Die!");
     }
 

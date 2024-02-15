@@ -18,6 +18,8 @@ public class Player : NetworkBehaviour
 
     public PlayerMove playerMove = null;
 
+    public PlayerPlantBomb playerPlantBomb = null;
+
     public Transform playerTop = null;
 
     public PlayerProperty prop = null;
@@ -86,49 +88,11 @@ public class Player : NetworkBehaviour
                     playerAppearance.Initialize();
                     playerHud = PlayerHudManager.Instance.GetPlayerHud(this);
                     playerMove.Initialize(this);
+                    playerPlantBomb.Initialize(this);
                     prop.Initialize(this);
                     break;
                 }
             }
-        }
-    }
-
-
-    [Command(requiresAuthority = false)]
-    public void DebugSetProp(int key)
-    {
-        switch (key)
-        {
-            case 1:
-                prop.SetRemainingBombCountOnServer(prop.remainingBombCount - 1);
-                break;
-            case 2:
-                prop.SetRemainingBombCountOnServer(prop.remainingBombCount + 1);
-                break;
-            case 3:
-                prop.SetBombCountOnServer(prop.bombCount - 1);
-                break;
-            case 4:
-                prop.SetBombCountOnServer(prop.bombCount + 1);
-                break;
-            case 5:
-                prop.SetHealthOnServer(prop.health - Random.Range(0f, 1000f));
-                break;
-            case 6:
-                prop.SetHealthOnServer(prop.health + Random.Range(0f, 1000f));
-                break;
-            case 7:
-                prop.SetShieldOnServer(prop.shield - Random.Range(0f, 1250f));
-                break;
-            case 8:
-                prop.SetShieldOnServer(prop.shield + Random.Range(0f, 1250f));
-                break;
-            case 9:
-                prop.SetShieldLevelOnServer(prop.shieldLevel - 1);
-                break;
-            case 0:
-                prop.SetShieldLevelOnServer(prop.shieldLevel + 1);
-                break;
         }
     }
 }

@@ -26,4 +26,15 @@ public class InputManager : MonoBehaviour
         Vector2 rawValue = context.ReadValue<Vector2>();
         LookValue = new Vector3(rawValue.x, 0f, rawValue.y);
     }
+
+
+    public void OnPlantBomb(InputAction.CallbackContext context)
+    {
+        if (!context.started)
+        {
+            return;
+        }
+
+        PlayerIdentity.Local?.player?.playerPlantBomb.PlantBombServerRPC(1, 2f);
+    }
 }

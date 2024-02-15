@@ -41,6 +41,8 @@ public class MapManager : MonoBehaviour
 
     public Color colorNormalGrid = new Color(0f, 0f, 0f, 10f / 255f);
 
+    public LayerMask layerFloor = new LayerMask();
+
     public Transform parentCubes = null;
 
     public Transform parentGrids = null;
@@ -213,6 +215,22 @@ public class MapManager : MonoBehaviour
     public Vector3 GetPositionByCoordinate(Vector2Int coordinate)
     {
         return GetPositionByCoordinate(coordinate.x, coordinate.y);
+    }
+
+
+    public Vector3 GetPositionOnFloor(Vector3 position)
+    {
+        position.y = 100f;
+        if (Physics.Raycast(position, Vector3.down, out RaycastHit hitInfo, 200f, layerFloor))
+        {
+            position = hitInfo.point;
+        }
+        else
+        {
+            position.y = 0f;
+        }
+
+        return position;
     }
 
 

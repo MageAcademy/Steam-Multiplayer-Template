@@ -7,8 +7,6 @@ public class PlayerMove : NetworkBehaviour
 {
     public static bool IsEnabled = false;
 
-    public LayerMask layerFloor = new LayerMask();
-
     [SyncVar] public Vector2Int networkCoordinate = new Vector2Int(-1, -1);
 
     private bool isInitialized = false;
@@ -98,17 +96,11 @@ public class PlayerMove : NetworkBehaviour
 
     private void RefreshPositionY()
     {
-        Vector3 position = transform.position;
-        position.y += 10f;
-        if (Physics.Raycast(position, Vector3.down, out RaycastHit hitInfo, 100f, layerFloor))
+        if (!isInitialized || !hasAuthority)
         {
-            transform.position = hitInfo.point;
+            return;
         }
-        else
-        {
-            position = transform.position;
-            position.y = 0f;
-            transform.position = position;
-        }
+
+        transform.position = MapManager.Instance.GetPositionOnFloor(transform.position);
     }
 }

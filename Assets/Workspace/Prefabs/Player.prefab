@@ -193,6 +193,7 @@ GameObject:
   - component: {fileID: 2346519845979896263}
   - component: {fileID: 8823130397067795538}
   - component: {fileID: 4386992124662483646}
+  - component: {fileID: -5471309093029883109}
   - component: {fileID: -4212991811704288162}
   - component: {fileID: 3946797876118791845}
   - component: {fileID: 3886943722383349527}
@@ -244,6 +245,7 @@ MonoBehaviour:
   playerCenter: {fileID: 5702534447475953727}
   playerHud: {fileID: 0}
   playerMove: {fileID: 4386992124662483646}
+  playerPlantBomb: {fileID: -5471309093029883109}
   playerTop: {fileID: 8748866548122480871}
   prop: {fileID: -4212991811704288162}
 --- !u!114 &8823130397067795538
@@ -277,10 +279,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0
-  layerFloor:
-    serializedVersion: 2
-    m_Bits: 128
   networkCoordinate: {x: -1, y: -1}
+--- !u!114 &-5471309093029883109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7381077869258326426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8724eea64119f541b4d7171155f0bca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
 --- !u!114 &-4212991811704288162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,8 +309,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   type: 3
-  remainingBombCount: 1
-  bombCount: 1
+  remainingBombCount: 5
+  bombCount: 5
   health: 1000
   moveSpeed: 4
   shield: 500
