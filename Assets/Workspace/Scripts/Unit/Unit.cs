@@ -1,5 +1,4 @@
 using Mirror;
-using UnityEngine;
 
 public class Unit : NetworkBehaviour
 {
@@ -60,7 +59,6 @@ public class Unit : NetworkBehaviour
         }
 
         isDead = true;
-        Debug.LogError($"[{type}] Die!");
     }
 
 

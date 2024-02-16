@@ -51,21 +51,6 @@ public class Player : NetworkBehaviour
     }
 
 
-    [ClientRpc]
-    private void GenerateMapClientRPC(string json)
-    {
-        MapManager.Instance.GenerateOnClient(json);
-    }
-
-
-    [Command(requiresAuthority = false)]
-    public void GenerateMapServerRPC()
-    {
-        string json = MapManager.Instance.GenerateOnServer(20, 20);
-        GenerateMapClientRPC(json);
-    }
-
-
     private IEnumerator Initialize()
     {
         while (!isInitialized)
@@ -95,4 +80,23 @@ public class Player : NetworkBehaviour
             }
         }
     }
+
+
+    #region RPC
+
+    [ClientRpc]
+    private void GenerateMapClientRPC(string json)
+    {
+        MapManager.Instance.GenerateOnClient(json);
+    }
+
+
+    [Command(requiresAuthority = false)]
+    public void GenerateMapServerRPC()
+    {
+        string json = MapManager.Instance.GenerateOnServer(20, 20);
+        GenerateMapClientRPC(json);
+    }
+
+    #endregion RPC
 }
