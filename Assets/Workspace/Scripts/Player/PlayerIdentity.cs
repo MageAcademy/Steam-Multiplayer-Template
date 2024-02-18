@@ -92,7 +92,7 @@ public class PlayerIdentity : NetworkBehaviour
         GameObject gameObject = Instantiate(prefabPlayer);
         Player player = gameObject.GetComponent<Player>();
         player.networkSteamID = networkSteamID;
-        player.playerAppearance.color =
+        player.playerAppearance.networkColor =
             new Color(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 1f);
         player.transform.position = new Vector3(Random.Range(-5f, 5f), 0f, Random.Range(-5f, 5f));
         NetworkServer.Spawn(gameObject, conn);

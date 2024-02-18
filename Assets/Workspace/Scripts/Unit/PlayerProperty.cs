@@ -26,13 +26,13 @@ public class PlayerProperty : Unit
 
     [SyncVar] public float moveSpeed = 4f;
 
+    public Player player = null;
+
     [SyncVar(hook = nameof(OnShieldChange))]
     public float shield = MIN_SHIELD_LEVEL * SHIELD_PER_LEVEL;
 
     [SyncVar(hook = nameof(OnShieldLevelChange))]
     public int shieldLevel = MIN_SHIELD_LEVEL;
-
-    private Player player = null;
 
 
     private void OnRemainingBombCountChange(int _, int newValue)

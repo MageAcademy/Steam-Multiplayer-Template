@@ -29,21 +29,20 @@ public class PlayerPlantBomb : NetworkBehaviour
             return;
         }
 
-        MapManager.Type cellType = MapManager.Instance.GetCell(coordinate.x, coordinate.y);
+        MapManager.Type cellType = MapManager.Instance.GetCell(coordinate);
         if (cellType != MapManager.Type.EmptyInside)
         {
             return;
         }
 
-        if (Bomb.InstanceList.Exists(bomb => bomb.coordinate.x == coordinate.x && bomb.coordinate.y == coordinate.y))
+        if (Bomb.InstanceMap.ContainsKey(coordinate))
         {
             return;
         }
 
         Bomb bomb = Instantiate(prefabBomb).GetComponent<Bomb>();
         bomb.coordinate = coordinate;
-        bomb.transform.position =
-            MapManager.Instance.GetPositionOnFloor(MapManager.Instance.GetPositionByCoordinate(coordinate));
+        bomb.transform.position = MapManager.Instance.GetPositionOnFloor(coordinate) + new Vector3(0f, 0.5f, 0f);
         bomb.InitializeOnServer(count, duration, player);
         NetworkServer.Spawn(bomb.gameObject);
     }

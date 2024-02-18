@@ -195,6 +195,12 @@ public class MapManager : MonoBehaviour
     }
 
 
+    public Type GetCell(Vector2Int coordinate)
+    {
+        return GetCell(coordinate.x, coordinate.y);
+    }
+
+
     public Vector2Int GetCoordinateByPosition(Vector3 position)
     {
         return data == null
@@ -231,6 +237,12 @@ public class MapManager : MonoBehaviour
         }
 
         return position;
+    }
+
+
+    public Vector3 GetPositionOnFloor(Vector2Int coordinate)
+    {
+        return GetPositionOnFloor(GetPositionByCoordinate(coordinate));
     }
 
 

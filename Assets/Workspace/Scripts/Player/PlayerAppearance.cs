@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerAppearance : NetworkBehaviour
 {
-    [SyncVar] public Color color = new Color();
+    [SyncVar] public Color networkColor = new Color();
     
     public List<MeshRenderer> meshRendererList = new List<MeshRenderer>();
 
@@ -13,7 +13,7 @@ public class PlayerAppearance : NetworkBehaviour
     {
         foreach (MeshRenderer meshRenderer in meshRendererList)
         {
-            meshRenderer.material.color = color;
+            meshRenderer.material.color = networkColor;
         }
     }
 }

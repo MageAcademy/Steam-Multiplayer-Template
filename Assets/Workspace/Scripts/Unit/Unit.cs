@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Mirror;
 
 public class Unit : NetworkBehaviour
@@ -11,9 +12,33 @@ public class Unit : NetworkBehaviour
         Null
     }
 
-    public bool isDead = false;
+    public static List<Unit> InstanceList = new List<Unit>();
+
+    [SyncVar(hook = nameof(OnIsDeadValueChange))]
+    public bool networkIsDead = false;
 
     public Type type = Type.Null;
+
+
+    private void Start()
+    {
+        InstanceList.Add(this);
+    }
+
+
+    private void OnDestroy()
+    {
+        InstanceList.Remove(this);
+    }
+
+
+    private void OnIsDeadValueChange(bool _, bool newValue)
+    {
+        if (newValue)
+        {
+            Die();
+        }
+    }
 
 
     [ServerCallback]
@@ -50,15 +75,21 @@ public class Unit : NetworkBehaviour
     }
 
 
+    public virtual void Die()
+    {
+        print($"{type} Die");
+    }
+
+
     [ServerCallback]
     public virtual void DieOnServer()
     {
-        if (isDead)
+        if (networkIsDead)
         {
             return;
         }
 
-        isDead = true;
+        networkIsDead = true;
     }
 
 

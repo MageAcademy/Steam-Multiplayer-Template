@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
@@ -25,6 +26,12 @@ public class Player : NetworkBehaviour
     public PlayerProperty prop = null;
 
 
+    private void Awake()
+    {
+        OnServerOwnerAwake();
+    }
+
+
     private IEnumerator Start()
     {
         yield return Initialize();
@@ -34,6 +41,7 @@ public class Player : NetworkBehaviour
     private void Update()
     {
         CheckNull();
+        HandleBombInfoListOnServerOwner();
     }
 
 
@@ -98,5 +106,61 @@ public class Player : NetworkBehaviour
         GenerateMapClientRPC(json);
     }
 
+
+    [ClientRpc]
+    private void HandleBombInfoListClientRPC(Vector2Int[] coordinates)
+    {
+        foreach (Vector2Int coordinate in coordinates)
+        {
+            PrefabManager.PrefabMap["Bomb Explosion Effect"].pool.Get(out GameObject element);
+            element.transform.position =
+                MapManager.Instance.GetPositionOnFloor(coordinate) + new Vector3(0f, 0.01f, 0f);
+        }
+    }
+
     #endregion RPC
+
+
+    #region METHOD ON SERVER OWNER
+
+    [ServerCallback]
+    private void HandleBombInfoListOnServerOwner()
+    {
+        if (!hasAuthority || !isServer)
+        {
+            return;
+        }
+
+        if (Bomb.InfoList.Count == 0)
+        {
+            return;
+        }
+
+        List<Unit> units = Unit.InstanceList.FindAll(unit => unit is PlayerProperty);
+        foreach (Unit unit in units)
+        {
+            PlayerProperty prop = unit as PlayerProperty;
+            if (Bomb.InfoList.Contains(prop.player.playerMove.networkCoordinate))
+            {
+                prop.TakeDamageOnServer(null, 400f);
+            }
+        }
+
+        HandleBombInfoListClientRPC(Bomb.InfoList.ToArray());
+        Bomb.InfoList.Clear();
+    }
+
+
+    [ServerCallback]
+    private void OnServerOwnerAwake()
+    {
+        if (!hasAuthority || !isServer)
+        {
+            return;
+        }
+
+        Bomb.InstanceMap.Clear();
+    }
+
+    #endregion METHOD ON SERVER OWNER
 }

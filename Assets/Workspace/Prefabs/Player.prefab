@@ -308,13 +308,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0
+  isDead: 0
   type: 3
   remainingBombCount: 5
   bombCount: 5
   health: 1000
   moveSpeed: 4
-  shield: 500
-  shieldLevel: 2
+  shield: 1250
+  shieldLevel: 5
 --- !u!95 &3946797876118791845
 Animator:
   serializedVersion: 5
