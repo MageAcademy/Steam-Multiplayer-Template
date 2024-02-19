@@ -8,8 +8,6 @@ public class PlayerHudManager : MonoBehaviour
 
     public Color colorBombOn = new Color();
 
-    public Color[] colorsShield = null;
-
     public Camera mainCamera = null;
 
     public Transform parentPlayerHud = null;

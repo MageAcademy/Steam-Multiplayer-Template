@@ -5,8 +5,6 @@ public class Unit : NetworkBehaviour
 {
     public enum Type
     {
-        BlockDestructible,
-        BlockIndestructible,
         Bomb,
         Hero,
         Null
@@ -77,7 +75,6 @@ public class Unit : NetworkBehaviour
 
     public virtual void Die()
     {
-        print($"{type} Die");
     }
 
 

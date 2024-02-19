@@ -26,14 +26,9 @@ public class Player : NetworkBehaviour
     public PlayerProperty prop = null;
 
 
-    private void Awake()
-    {
-        OnServerOwnerAwake();
-    }
-
-
     private IEnumerator Start()
     {
+        InitializeOnServerOwner();
         yield return Initialize();
     }
 
@@ -113,8 +108,8 @@ public class Player : NetworkBehaviour
         foreach (Vector2Int coordinate in coordinates)
         {
             PrefabManager.PrefabMap["Bomb Explosion Effect"].pool.Get(out GameObject element);
-            element.transform.position =
-                MapManager.Instance.GetPositionOnFloor(coordinate) + new Vector3(0f, 0.01f, 0f);
+            element.transform.position = MapManager.Instance.GetPositionByCoordinate(coordinate);
+            MapManager.Instance.DestroyBlock(coordinate);
         }
     }
 
@@ -140,19 +135,35 @@ public class Player : NetworkBehaviour
         foreach (Unit unit in units)
         {
             PlayerProperty prop = unit as PlayerProperty;
-            if (Bomb.InfoList.Contains(prop.player.playerMove.networkCoordinate))
+            Bomb.Info info = Bomb.InfoList.Find(info => info.coordinate == prop.player.playerMove.networkCoordinate);
+            if (info != null)
             {
-                prop.TakeDamageOnServer(null, 400f);
+                prop.TakeDamageOnServer(info.damageSource.prop, 400f);
             }
         }
 
-        HandleBombInfoListClientRPC(Bomb.InfoList.ToArray());
+        Vector2Int[] coordinates = new Vector2Int[Bomb.InfoList.Count];
+        for (int a = 0; a < coordinates.Length; ++a)
+        {
+            coordinates[a] = Bomb.InfoList[a].coordinate;
+            if (MapManager.Instance.GetCell(coordinates[a].x, coordinates[a].y) == MapManager.Type.BlockDestructible)
+            {
+                LootEntry entry = LootManager.Instance.GetRandomInstance();
+                if (entry != null)
+                {
+                    entry.transform.position = MapManager.Instance.GetPositionOnFloor(coordinates[a]);
+                    NetworkServer.Spawn(entry.gameObject);
+                }
+            }
+        }
+
+        HandleBombInfoListClientRPC(coordinates);
         Bomb.InfoList.Clear();
     }
 
 
     [ServerCallback]
-    private void OnServerOwnerAwake()
+    private void InitializeOnServerOwner()
     {
         if (!hasAuthority || !isServer)
         {

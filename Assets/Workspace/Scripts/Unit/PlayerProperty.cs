@@ -4,12 +4,16 @@ using UnityEngine;
 public class PlayerProperty : Unit
 {
     public const int MAX_BOMB_COUNT = 5;
+    
+    public const int MAX_BOMB_RANGE = 5;
 
     public const float MAX_HEALTH = 1000f;
 
     public const int MAX_SHIELD_LEVEL = 5;
 
     public const int MIN_BOMB_COUNT = 1;
+    
+    public const int MIN_BOMB_RANGE = 1;
 
     public const int MIN_SHIELD_LEVEL = 2;
 
@@ -20,6 +24,8 @@ public class PlayerProperty : Unit
 
     [SyncVar(hook = nameof(OnBombCountChange))]
     public int bombCount = MIN_BOMB_COUNT;
+
+    [SyncVar] public int bombRange = 1;
 
     [SyncVar(hook = nameof(OnHealthChange))]
     public float health = MAX_HEALTH;
@@ -92,6 +98,18 @@ public class PlayerProperty : Unit
         }
 
         bombCount = Mathf.Clamp(value, MIN_BOMB_COUNT, MAX_BOMB_COUNT);
+    }
+
+
+    [ServerCallback]
+    public void SetBombRangeOnServer(int value)
+    {
+        if (!isServer)
+        {
+            return;
+        }
+
+        bombRange = Mathf.Clamp(value, MIN_BOMB_RANGE, MAX_BOMB_RANGE);
     }
 
 

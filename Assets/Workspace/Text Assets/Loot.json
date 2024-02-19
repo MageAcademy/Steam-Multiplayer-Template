@@ -1,0 +1,110 @@
+[
+    {
+        "id": 1,
+        "name": "空",
+        "quality": 0,
+        "weight": 32
+    },
+    {
+        "id": 2,
+        "name": "凡品护甲",
+        "quality": 0,
+        "weight": 0
+    },
+    {
+        "id": 3,
+        "name": "良品护甲",
+        "quality": 1,
+        "weight": 8
+    },
+    {
+        "id": 4,
+        "name": "优品护甲",
+        "quality": 2,
+        "weight": 4
+    },
+    {
+        "id": 5,
+        "name": "极品护甲",
+        "quality": 3,
+        "weight": 2
+    },
+    {
+        "id": 6,
+        "name": "神品护甲",
+        "quality": 4,
+        "weight": 0
+    },
+    {
+        "id": 7,
+        "name": "凝血丸",
+        "quality": 1,
+        "weight": 8
+    },
+    {
+        "id": 8,
+        "name": "大包凝血丸",
+        "quality": 2,
+        "weight": 4
+    },
+    {
+        "id": 9,
+        "name": "护甲粉末",
+        "quality": 1,
+        "weight": 8
+    },
+    {
+        "id": 10,
+        "name": "高级护甲粉末",
+        "quality": 2,
+        "weight": 4
+    },
+    {
+        "id": 11,
+        "name": "绝招加速剂",
+        "quality": 2,
+        "weight": 4
+    },
+    {
+        "id": 12,
+        "name": "范围魂玉",
+        "quality": 0,
+        "weight": 16
+    },
+    {
+        "id": 13,
+        "name": "容量魂玉",
+        "quality": 0,
+        "weight": 16
+    },
+    {
+        "id": 14,
+        "name": "速度魂玉",
+        "quality": 0,
+        "weight": 16
+    },
+    {
+        "id": 15,
+        "name": "武技·百裂斩",
+        "quality": 3,
+        "weight": 2
+    },
+    {
+        "id": 16,
+        "name": "秘技·幽灵疾步",
+        "quality": 3,
+        "weight": 2
+    },
+    {
+        "id": 17,
+        "name": "秘技·闪现",
+        "quality": 3,
+        "weight": 2
+    },
+    {
+        "id": 18,
+        "name": "绝技·索命咒",
+        "quality": 4,
+        "weight": 2
+    }
+]

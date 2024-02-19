@@ -42,7 +42,7 @@ public class PlayerPlantBomb : NetworkBehaviour
 
         Bomb bomb = Instantiate(prefabBomb).GetComponent<Bomb>();
         bomb.coordinate = coordinate;
-        bomb.transform.position = MapManager.Instance.GetPositionOnFloor(coordinate) + new Vector3(0f, 0.5f, 0f);
+        bomb.transform.position = MapManager.Instance.GetPositionOnFloor(coordinate);
         bomb.InitializeOnServer(count, duration, player);
         NetworkServer.Spawn(bomb.gameObject);
     }

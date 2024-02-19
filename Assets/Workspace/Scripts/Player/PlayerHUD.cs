@@ -127,7 +127,7 @@ public class PlayerHud : MonoBehaviour
         for (int a = 0; a < imageShieldBackground.Length; ++a)
         {
             imageShieldBackground[a].gameObject.SetActive(a < value);
-            imageShieldForeground[a].color = PlayerHudManager.Instance.colorsShield[value - 2];
+            imageShieldForeground[a].color = LootManager.Instance.colorQuality[value - 2];
             imageShieldForeground[a].gameObject.SetActive(a < value);
         }
     }

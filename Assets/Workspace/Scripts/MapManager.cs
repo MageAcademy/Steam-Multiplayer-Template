@@ -47,11 +47,13 @@ public class MapManager : MonoBehaviour
 
     public Transform parentGrids = null;
 
+    public Block prefabBlock = null;
+
     public GameObject prefabCube = null;
 
     public GameObject prefabImage = null;
 
-    private GameObject[,] cubes = null;
+    private Block[,] blocks = null;
 
     private Data data = null;
 
@@ -68,13 +70,13 @@ public class MapManager : MonoBehaviour
     }
 
 
-    private void CreateCube(int x, int y, Color color)
+    private void CreateBlock(int x, int y, bool isDestructible)
     {
-        Transform cube = Instantiate(prefabCube, parentCubes).transform;
-        cube.position = GetPositionByCoordinate(x, y) + new Vector3(0f, cellSize / 2f, 0f);
-        cube.localScale = new Vector3(0.9f, 1f, 0.9f) * cellSize;
-        cube.GetComponent<MeshRenderer>().material.color = color;
-        cubes[x, y] = cube.gameObject;
+        Block block = Instantiate(prefabBlock, parentCubes);
+        block.coordinate = new Vector2Int(x, y);
+        block.isDestructible = isDestructible;
+        block.Initialize();
+        blocks[x, y] = block;
     }
 
 
@@ -89,37 +91,57 @@ public class MapManager : MonoBehaviour
     }
 
 
+    public void DestroyBlock(Vector2Int coordinate)
+    {
+        int x = coordinate.x;
+        int y = coordinate.y;
+        if (!IsCoordinateValid(x, y))
+        {
+            return;
+        }
+
+        Block block = blocks[x, y];
+        if (block == null)
+        {
+            return;
+        }
+
+        Destroy(block.gameObject);
+        SetCell(x, y, Type.EmptyInside);
+    }
+
+
     public void GenerateOnClient(string json)
     {
         data = JsonConvert.DeserializeObject<Data>(json);
         float playerRadius = 0.2f;
         float wallThickness = 20f;
-        Vector3 floorSize = new Vector3(data.width * cellSize, 1f, data.height * cellSize);
+        Vector3 floorSize = new Vector3((data.width + 2) * cellSize, 1f, (data.height + 2) * cellSize);
         Transform wall = Instantiate(prefabCube, parentCubes).transform;
         wall.gameObject.name = "Bottom Wall";
         wall.position = new Vector3(0f, 0f, -floorSize.z / 2f - playerRadius - wallThickness / 2f);
         wall.localScale = new Vector3(floorSize.x + playerRadius * 2f + wallThickness * 2f, cellSize * 2f,
             wallThickness);
-        wall.GetComponent<MeshRenderer>().enabled = false;
+        wall.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.2f, 0f, 1f);
         wall = Instantiate(prefabCube, parentCubes).transform;
         wall.gameObject.name = "Top Wall";
         wall.position = new Vector3(0f, 0f, +floorSize.z / 2f + playerRadius + wallThickness / 2f);
         wall.localScale = new Vector3(floorSize.x + playerRadius * 2f + wallThickness * 2f, cellSize * 2f,
             wallThickness);
-        wall.GetComponent<MeshRenderer>().enabled = false;
+        wall.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.2f, 0f, 1f);
         wall = Instantiate(prefabCube, parentCubes).transform;
         wall.gameObject.name = "Left Wall";
         wall.position = new Vector3(-floorSize.x / 2f - playerRadius - wallThickness / 2f, 0f, 0f);
         wall.localScale =
             new Vector3(wallThickness, cellSize * 2f, floorSize.z + playerRadius * 2f + wallThickness * 2f);
-        wall.GetComponent<MeshRenderer>().enabled = false;
+        wall.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.2f, 0f, 1f);
         wall = Instantiate(prefabCube, parentCubes).transform;
         wall.gameObject.name = "Right Wall";
         wall.position = new Vector3(floorSize.x / 2f + playerRadius + wallThickness / 2f, 0f, 0f);
         wall.localScale =
             new Vector3(wallThickness, cellSize * 2f, floorSize.z + playerRadius * 2f + wallThickness * 2f);
-        wall.GetComponent<MeshRenderer>().enabled = false;
-        cubes = new GameObject[data.width, data.height];
+        wall.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.2f, 0f, 1f);
+        blocks = new Block[data.width, data.height];
         grids = new Image[data.width, data.height];
         for (int x = 0; x < data.width; ++x)
         {
@@ -128,11 +150,11 @@ public class MapManager : MonoBehaviour
                 switch (data.cells[x, y].type)
                 {
                     case Type.BlockDestructible:
-                        CreateCube(x, y, Color.yellow);
+                        CreateBlock(x, y, true);
                         CreateGrid(x, y);
                         break;
                     case Type.BlockIndestructible:
-                        CreateCube(x, y, Color.white);
+                        CreateBlock(x, y, false);
                         break;
                     case Type.EmptyInside:
                         CreateGrid(x, y);
@@ -153,13 +175,19 @@ public class MapManager : MonoBehaviour
             height = height,
             width = width
         };
+        RandomManager.IntType[] probabilities =
+        {
+            new RandomManager.IntType { value = 1, weight = 2f },
+            new RandomManager.IntType { value = 2, weight = 1f },
+            new RandomManager.IntType { value = 3, weight = 4f },
+        };
         for (int x = 0; x < width; ++x)
         {
             for (int y = 0; y < height; ++y)
             {
                 data.cells[x, y] = new Cell
                 {
-                    type = (Type)3,
+                    type = (Type)RandomManager.Get(probabilities).value,
                     x = x,
                     y = y
                 };
@@ -205,8 +233,8 @@ public class MapManager : MonoBehaviour
     {
         return data == null
             ? new Vector2Int(-1, -1)
-            : new Vector2Int((int)((position.x + data.width * cellSize / 2f) / cellSize),
-                (int)((position.z + data.height * cellSize / 2f) / cellSize));
+            : new Vector2Int(Mathf.FloorToInt((position.x + data.width * cellSize / 2f) / cellSize),
+                Mathf.FloorToInt((position.z + data.height * cellSize / 2f) / cellSize));
     }
 
 
@@ -224,6 +252,18 @@ public class MapManager : MonoBehaviour
     }
 
 
+    public Vector3 GetPositionOnFloor(int x, int y)
+    {
+        return GetPositionOnFloor(GetPositionByCoordinate(x, y));
+    }
+
+
+    public Vector3 GetPositionOnFloor(Vector2Int coordinate)
+    {
+        return GetPositionOnFloor(coordinate.x, coordinate.y);
+    }
+
+
     public Vector3 GetPositionOnFloor(Vector3 position)
     {
         position.y = 100f;
@@ -237,12 +277,6 @@ public class MapManager : MonoBehaviour
         }
 
         return position;
-    }
-
-
-    public Vector3 GetPositionOnFloor(Vector2Int coordinate)
-    {
-        return GetPositionOnFloor(GetPositionByCoordinate(coordinate));
     }
 
 

@@ -6,7 +6,14 @@ using UnityEngine;
 
 public class Bomb : Unit
 {
-    public static List<Vector2Int> InfoList = new List<Vector2Int>(); // server owner only
+    public class Info
+    {
+        public Vector2Int coordinate = new Vector2Int();
+
+        public Player damageSource = null;
+    }
+
+    public static List<Info> InfoList = new List<Info>(); // server owner only
 
     public static Dictionary<Vector2Int, Bomb> InstanceMap = new Dictionary<Vector2Int, Bomb>(); // server only
 
@@ -24,10 +31,12 @@ public class Bomb : Unit
 
     private Player player = null; // server only
 
+    private int range = 0;
+
 
     private void Start()
     {
-        Unit.InstanceList.Add(this);
+        InstanceList.Add(this);
         collider = GetComponent<Collider>();
     }
 
@@ -41,12 +50,12 @@ public class Bomb : Unit
 
     private void AddInfoOnServer(Vector2Int coordinate)
     {
-        if (InfoList.Contains(coordinate))
+        if (InfoList.Exists(info => info.coordinate == coordinate))
         {
             return;
         }
 
-        InfoList.Add(coordinate);
+        InfoList.Add(new Info { coordinate = coordinate, damageSource = damageSource });
     }
 
 
@@ -79,6 +88,13 @@ public class Bomb : Unit
     }
 
 
+    public override void Die()
+    {
+        base.Die();
+        Destroy(gameObject);
+    }
+
+
     [ServerCallback]
     public override void DieOnServer()
     {
@@ -95,7 +111,7 @@ public class Bomb : Unit
         MapManager.Type cellType = MapManager.Type.Null;
         bool[] flags = new bool[4]; // left, right, back, front
         Vector2Int newCoordinate = new Vector2Int();
-        for (int a = 1; a < 3; ++a)
+        for (int a = 1; a <= range; ++a)
         {
             newCoordinate = new Vector2Int(coordinate.x - a, coordinate.y);
             cellType = MapManager.Instance.GetCell(newCoordinate);
@@ -205,8 +221,6 @@ public class Bomb : Unit
     {
         InstanceMap.Remove(coordinate);
         player.prop.SetRemainingBombCountOnServer(player.prop.remainingBombCount + count);
-        Destroy(gameObject);
-        NetworkServer.UnSpawn(gameObject);
     }
 
 
@@ -218,5 +232,6 @@ public class Bomb : Unit
         this.duration = duration;
         this.player = player;
         player.prop.SetRemainingBombCountOnServer(player.prop.remainingBombCount - count);
+        range = player.prop.bombRange;
     }
 }
