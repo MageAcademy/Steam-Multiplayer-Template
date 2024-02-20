@@ -151,7 +151,7 @@ public class Player : NetworkBehaviour
                 LootEntry entry = LootManager.Instance.GetRandomInstance();
                 if (entry != null)
                 {
-                    entry.transform.position = MapManager.Instance.GetPositionOnFloor(coordinates[a]);
+                    entry.transform.position = MapManager.Instance.GetPositionByCoordinate(coordinates[a]);
                     NetworkServer.Spawn(entry.gameObject);
                 }
             }

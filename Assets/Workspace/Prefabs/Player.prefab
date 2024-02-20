@@ -310,14 +310,14 @@ MonoBehaviour:
   syncInterval: 0
   networkIsDead: 0
   type: 1
-  remainingBombCount: 5
-  bombCount: 5
+  remainingBombCount: 1
+  bombCount: 1
   bombRange: 1
   health: 1000
   moveSpeed: 4
   player: {fileID: 0}
-  shield: 1250
-  shieldLevel: 5
+  shield: 500
+  shieldLevel: 2
 --- !u!95 &3946797876118791845
 Animator:
   serializedVersion: 5

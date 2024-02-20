@@ -3,13 +3,19 @@ using UnityEngine;
 
 public class LootEntry : NetworkBehaviour
 {
+    public GameObject beamOrange = null;
+
+    public GameObject beamRed = null;
+
+    public LootManager.Data data = null;
+
     public MeshRenderer meshRenderer = null;
 
     [SyncVar] public int networkID = 0;
 
     public ParticleSystem[] particleSystems = null;
 
-    private LootManager.Data data = null;
+    public ParticleSystem[] sparkles = null;
 
 
     private void Start()
@@ -30,17 +36,28 @@ public class LootEntry : NetworkBehaviour
     }
 
 
-    public void Initialize()
+    private void Initialize()
     {
         data = LootManager.Instance.data[networkID - 1];
+        beamOrange.SetActive(data.quality == 3);
+        beamRed.SetActive(data.quality == 4);
         Color color = LootManager.Instance.colorQuality[data.quality];
         meshRenderer.material.color = color;
-        meshRenderer.material.SetColor("_Emission", color);
+        meshRenderer.material.SetColor("_EmissionColor", color);
         foreach (ParticleSystem particleSystem in particleSystems)
         {
             ParticleSystem.MainModule mainModule = particleSystem.main;
             mainModule.startColor = color;
         }
+
+        int[] frameIndex = { 3, 6, 2, 8, 1 };
+        foreach (ParticleSystem particleSystem in sparkles)
+        {
+            ParticleSystem.TextureSheetAnimationModule animationModule = particleSystem.textureSheetAnimation;
+            animationModule.startFrame = frameIndex[data.quality] / 9f;
+        }
+
+        PlayerHudManager.Instance.GetLootHud(this);
     }
 
 
@@ -136,6 +153,7 @@ public class LootEntry : NetworkBehaviour
                 {
                     flag = true;
                     prop.SetBombCountOnServer(prop.bombCount + 1);
+                    prop.SetRemainingBombCountOnServer(prop.remainingBombCount + 1);
                 }
 
                 break;

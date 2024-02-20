@@ -149,14 +149,17 @@ public class PlayerHud : MonoBehaviour
             return;
         }
 
-        Vector3 center = PlayerHudManager.Instance.mainCamera.WorldToScreenPoint(player.playerCenter.position);
-        Vector3 top = PlayerHudManager.Instance.mainCamera.WorldToScreenPoint(player.playerTop.position);
+        Vector3 center = PlayerHudManager.GetScreenPosition(player.playerCenter.position);
+        Vector3 top = PlayerHudManager.GetScreenPosition(player.playerTop.position);
         transform.position = new Vector3(center.x, top.y + 50f, 0f);
     }
 
 
     public void Initialize(Player player)
     {
+        imageHealthForeground.color = player.hasAuthority
+            ? PlayerHudManager.Instance.colorHealthAlly
+            : PlayerHudManager.Instance.colorHealthEnemy;
         currentHealthBackground = PlayerProperty.MAX_HEALTH;
         currentShieldBackground = player.prop.shieldLevel * PlayerProperty.SHIELD_PER_LEVEL;
         healthBackgroundCooldown = 0f;

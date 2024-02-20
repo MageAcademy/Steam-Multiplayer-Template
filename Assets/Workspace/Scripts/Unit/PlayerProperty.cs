@@ -9,7 +9,7 @@ public class PlayerProperty : Unit
 
     public const float MAX_HEALTH = 1000f;
 
-    public const int MAX_SHIELD_LEVEL = 5;
+    public const int MAX_SHIELD_LEVEL = 6;
 
     public const int MIN_BOMB_COUNT = 1;
     

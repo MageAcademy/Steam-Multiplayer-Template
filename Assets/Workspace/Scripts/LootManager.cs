@@ -54,7 +54,6 @@ public class LootManager : MonoBehaviour
 
         LootEntry entry = Instantiate(prefab);
         entry.networkID = id;
-        entry.Initialize();
         return entry;
     }
 
