@@ -121,7 +121,7 @@ public class Player : NetworkBehaviour
     [ServerCallback]
     private void HandleBombInfoListOnServerOwner()
     {
-        if (!hasAuthority || !isServer)
+        if (!hasAuthority)
         {
             return;
         }
@@ -165,7 +165,7 @@ public class Player : NetworkBehaviour
     [ServerCallback]
     private void InitializeOnServerOwner()
     {
-        if (!hasAuthority || !isServer)
+        if (!hasAuthority)
         {
             return;
         }

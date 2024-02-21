@@ -157,6 +157,10 @@ public class LootEntry : NetworkBehaviour
                 }
 
                 break;
+            case 14:
+                flag = true;
+                prop.AddBuffOnServer(PlayerProperty.BuffType.MoveSpeedAdd_SoulJade, 2f, 20f);
+                break;
         }
 
         if (flag)

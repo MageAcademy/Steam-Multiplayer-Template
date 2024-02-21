@@ -168,6 +168,17 @@
                 },
                 {
                     "name": "",
+                    "id": "6d584b93-474c-4919-acd0-cabcaa145eaa",
+                    "path": "<XInputController>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Plant Bomb",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "9e2c7d71-fa7e-4a45-b83d-10f4fcf0afc1",
                     "path": "<Keyboard>/space",
                     "interactions": "",

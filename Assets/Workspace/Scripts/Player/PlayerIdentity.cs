@@ -100,7 +100,7 @@ public class PlayerIdentity : NetworkBehaviour
 
 
     [Command(requiresAuthority = false)]
-    public void UnSpawnPlayerServerRPC(NetworkConnectionToClient conn = null)
+    public void UnSpawnPlayerServerRPC()
     {
         if (player == null)
         {

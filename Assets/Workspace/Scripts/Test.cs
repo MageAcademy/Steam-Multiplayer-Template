@@ -28,10 +28,5 @@ public class Test : MonoBehaviour
         {
             GraphicsQuality.Instance.Change(3);
         }
-
-        if (Input.GetKeyDown(KeyCode.Keypad4))
-        {
-            PlayerIdentity.Local?.player?.prop.TakeDamageOnServer(null, Random.Range(0f, 1000f));
-        }
     }
 }

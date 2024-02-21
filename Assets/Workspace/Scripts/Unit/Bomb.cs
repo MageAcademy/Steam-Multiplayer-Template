@@ -74,11 +74,6 @@ public class Bomb : Unit
     [ServerCallback]
     private void CountdownOnServer()
     {
-        if (!isServer)
-        {
-            return;
-        }
-
         duration -= Time.deltaTime;
         if (duration < 0f)
         {

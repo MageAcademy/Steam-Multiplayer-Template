@@ -19,18 +19,18 @@ public class PlayerMove : NetworkBehaviour
     private void Update()
     {
         RefreshCoordinateOnServer();
-        RefreshPositionY();
+        RefreshPositionYOnLocalPlayer();
     }
 
 
     private void FixedUpdate()
     {
-        ClearAngularVelocity();
-        Move();
+        ClearAngularVelocityOnLocalPlayer();
+        MoveOnLocalPlayer();
     }
 
 
-    private void ClearAngularVelocity()
+    private void ClearAngularVelocityOnLocalPlayer()
     {
         if (!hasAuthority || !isInitialized)
         {
@@ -50,7 +50,7 @@ public class PlayerMove : NetworkBehaviour
     }
 
 
-    private void Move()
+    private void MoveOnLocalPlayer()
     {
         if (!IsEnabled || !hasAuthority || !isInitialized)
         {
@@ -94,9 +94,9 @@ public class PlayerMove : NetworkBehaviour
     }
 
 
-    private void RefreshPositionY()
+    private void RefreshPositionYOnLocalPlayer()
     {
-        if (!isInitialized || !hasAuthority)
+        if (!hasAuthority || !isInitialized)
         {
             return;
         }
