@@ -2,7 +2,7 @@
 using UnityEngine.Assertions;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Linq;
+using TMPro;
 
 namespace Xamin
 {
@@ -12,6 +12,8 @@ namespace Xamin
     [RequireComponent(typeof(AudioSource))]
     public class CircleSelector : MonoBehaviour
     {
+        public static CircleSelector Instance = null;
+
         [Range(2, 10)] private int buttonCount;
         private int startButCount;
 
@@ -29,14 +31,15 @@ namespace Xamin
         private float _desiredFill;
         float radius = 120f;
 
-        [Header("Sound")] public AudioClip SegmentChangedSound;
-        public AudioClip SegmentClickedSound;
+        [Header("Sound")] public AudioClip AudioMenuSelect;
+        public AudioClip AudioMenuClose;
+        public AudioClip AudioMenuOpen;
 
         [Header("Interaction")] public List<GameObject> Buttons = new List<GameObject>();
         public ButtonSource buttonSource;
         private readonly List<Xamin.Button> buttonsInstances = new List<Xamin.Button>();
         private Vector2 _menuCenter;
-		public bool RaiseOnSelection;
+        public bool RaiseOnSelection;
 
         private GameObject _selectedSegment;
         private float _audioCoolDown;
@@ -54,11 +57,14 @@ namespace Xamin
                 //Debug.Log(value.name);
                 if (value == SelectedSegment) return;
                 _selectedSegment = value;
-                if (SegmentChangedSound == null || !(_audioCoolDown <= 0)) return;
-                localAudioSource.PlayOneShot(SegmentChangedSound);
+                if (AudioMenuSelect == null || !(_audioCoolDown <= 0)) return;
+                localAudioSource.PlayOneShot(AudioMenuSelect);
                 _audioCoolDown = .05f;
+                textDescription.text = SelectedSegment.GetComponent<Button>().description;
             }
         }
+
+        public TextMeshProUGUI textDescription = null;
 
         public bool selectOnlyOnHover;
         public float pieThickness = 85;
@@ -102,6 +108,12 @@ namespace Xamin
 
         private Dictionary<GameObject, Button> instancedButtons;
 
+
+        private void Awake()
+        {
+            Instance = this;
+        }
+
         /// <summary>
         /// Rearranges the buttons, can be called multiple times
         /// </summary>
@@ -122,7 +134,7 @@ namespace Xamin
                 #region Arrange Buttons
 
                 startButCount = buttonCount;
-                _desiredFill = 1f / (float) buttonCount;
+                _desiredFill = 1f / (float)buttonCount;
                 float fillRadius = _desiredFill * 360f;
                 float previousRotation = 0;
                 foreach (Transform sep in transform.Find("Separators"))
@@ -182,9 +194,10 @@ namespace Xamin
         /// </summary>
         public void Open()
         {
-            _menuCenter = new Vector2((float) Screen.width / 2f, (float) Screen.height / 2f);
+            _menuCenter = new Vector2((float)Screen.width / 2f, (float)Screen.height / 2f);
             opened = true;
             transform.localScale = (OpenAnimation == AnimationType.zoomIn) ? Vector3.zero : Vector3.one * 10;
+            localAudioSource.PlayOneShot(AudioMenuOpen);
         }
 
         /// <summary>
@@ -275,7 +288,7 @@ namespace Xamin
                     {
                         float x = vector.x / screenBounds.x, y = vector.y / screenBounds.y;
                         transform.localRotation = Quaternion.Slerp(transform.localRotation,
-                            Quaternion.Euler((Vector3) (new Vector2(y, -x) * -tiltAmount) +
+                            Quaternion.Euler((Vector3)(new Vector2(y, -x) * -tiltAmount) +
                                              Vector3.forward * zRotation), LerpAmount);
                     }
                     else
@@ -285,7 +298,7 @@ namespace Xamin
 
                     float mouseRotation = zRotation + 57.29578f *
                         (controlType == ControlType.mouseAndTouch
-                            ? Mathf.Atan2(vector.x, vector.y) 
+                            ? Mathf.Atan2(vector.x, vector.y)
                             : controlType == ControlType.gamepad
                                 ? Mathf.Atan2(Input.GetAxis(gamepadAxisX), Input.GetAxis(gamepadAxisY))
                                 : Mathf.Atan2(CustomInputVector.x, CustomInputVector.y));
@@ -412,9 +425,9 @@ namespace Xamin
             else
             {
                 transform.localScale = Vector3.Lerp(transform.localScale,
-                    (CloseAnimation == AnimationType.zoomIn) ? Vector3.zero : Vector3.one * 10, .05f);
-                _cursor.color = Color.Lerp(_cursor.color, Color.clear, LerpAmount / 3f);
-                _background.color = Color.Lerp(_background.color, Color.clear, LerpAmount / 3f);
+                    (CloseAnimation == AnimationType.zoomIn) ? Vector3.zero : Vector3.one * 10, LerpAmount);
+                _cursor.color = Color.Lerp(_cursor.color, Color.clear, LerpAmount);
+                _background.color = Color.Lerp(_background.color, Color.clear, LerpAmount);
             }
         }
 
@@ -440,7 +453,7 @@ namespace Xamin
                 if (instancedButtons[SelectedSegment].unlocked)
                 {
                     instancedButtons[SelectedSegment].ExecuteAction();
-                    localAudioSource.PlayOneShot(SegmentClickedSound);
+                    localAudioSource.PlayOneShot(AudioMenuClose);
                 }
 
                 Close();

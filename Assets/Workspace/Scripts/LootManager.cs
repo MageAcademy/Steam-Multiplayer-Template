@@ -23,6 +23,8 @@ public class LootManager : MonoBehaviour
 
     public TextAsset json = null;
 
+    public Transform parentLoot = null;
+
     private LootEntry prefab = null;
 
     private RandomManager.IntType[] probabilities = null;
@@ -52,7 +54,7 @@ public class LootManager : MonoBehaviour
             return null;
         }
 
-        LootEntry entry = Instantiate(prefab);
+        LootEntry entry = Instantiate(prefab, parentLoot);
         entry.networkID = id;
         return entry;
     }

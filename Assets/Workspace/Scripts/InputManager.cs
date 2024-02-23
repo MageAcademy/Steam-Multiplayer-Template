@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Xamin;
 
 public class InputManager : MonoBehaviour
 {
@@ -36,5 +37,18 @@ public class InputManager : MonoBehaviour
         }
 
         PlayerIdentity.Local?.player?.playerPlantBomb.PlantBombServerRPC(1, 2f);
+    }
+
+
+    public void OnMenu(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            CircleSelector.Instance.Open();
+        }
+        else if (context.canceled)
+        {
+            CircleSelector.Instance.Close();
+        }
     }
 }

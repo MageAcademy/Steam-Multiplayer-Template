@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
 public class LootEntry : NetworkBehaviour
 {
+    public static List<LootEntry> InstanceList = new List<LootEntry>();
+    
     public GameObject beamOrange = null;
 
     public GameObject beamRed = null;
@@ -24,6 +27,12 @@ public class LootEntry : NetworkBehaviour
     }
 
 
+    private void OnDestroy()
+    {
+        InstanceList.Remove(this);
+    }
+
+
     private void OnTriggerEnter(Collider other)
     {
         if (!isServer || LayerMask.LayerToName(other.gameObject.layer) != "Player")
@@ -38,6 +47,7 @@ public class LootEntry : NetworkBehaviour
 
     private void Initialize()
     {
+        InstanceList.Add(this);
         data = LootManager.Instance.data[networkID - 1];
         beamOrange.SetActive(data.quality == 3);
         beamRed.SetActive(data.quality == 4);

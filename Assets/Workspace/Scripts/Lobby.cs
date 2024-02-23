@@ -2,7 +2,6 @@ using System.Collections;
 using Mirror;
 using Steamworks;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Lobby : MonoBehaviour
 {
@@ -10,7 +9,7 @@ public class Lobby : MonoBehaviour
 
     private const string KEY_LOBBY_NAME = "LobbyName";
 
-    public Button buttonCreateLobby = null;
+    public static bool InLobby = false;
 
     private UNetworkManager networkManager = null;
 
@@ -21,6 +20,12 @@ public class Lobby : MonoBehaviour
     private Callback<LobbyEnter_t> onLobbyEnter = null;
 
 
+    private void Awake()
+    {
+        InLobby = false;
+    }
+
+
     private void Start()
     {
         if (!SteamManager.Initialized)
@@ -29,7 +34,6 @@ public class Lobby : MonoBehaviour
             return;
         }
 
-        buttonCreateLobby.onClick.AddListener(CreateLobby);
         networkManager = NetworkManager.singleton as UNetworkManager;
         onJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnJoinRequested);
         onLobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
@@ -40,7 +44,7 @@ public class Lobby : MonoBehaviour
     private void OnJoinRequested(GameLobbyJoinRequested_t callback)
     {
         Debug.LogError($"正在加入大厅[{callback.m_steamIDLobby}]。");
-        buttonCreateLobby.gameObject.SetActive(false);
+        InLobby = true;
         SteamMatchmaking.JoinLobby(callback.m_steamIDLobby);
     }
 
@@ -78,10 +82,15 @@ public class Lobby : MonoBehaviour
     }
 
 
-    private void CreateLobby()
+    public void CreateLobby()
     {
+        if (InLobby)
+        {
+            return;
+        }
+
         Debug.LogError("正在创建大厅。");
-        buttonCreateLobby.gameObject.SetActive(false);
+        InLobby = true;
         SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, networkManager.maxConnections);
     }
 
@@ -94,7 +103,7 @@ public class Lobby : MonoBehaviour
         }
         else
         {
-            buttonCreateLobby.gameObject.SetActive(true);
+            InLobby = false;
         }
     }
 
@@ -106,6 +115,7 @@ public class Lobby : MonoBehaviour
             yield return null;
         }
 
+        Bomb.InstanceMap.Clear();
         PlayerIdentity.Local.SpawnPlayerServerRPC();
     }
 }

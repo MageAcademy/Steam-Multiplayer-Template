@@ -72,6 +72,43 @@ public class PlayerIdentity : NetworkBehaviour
     }
 
 
+    [ClientRpc]
+    private void ResetGameClientRPC()
+    {
+        SpawnPlayerServerRPC();
+        MapManager.Instance.ClearOnClient();
+    }
+
+
+    [ServerCallback]
+    public void ResetGameOnServerOwner()
+    {
+        foreach (Bomb bomb in Bomb.InstanceMap.Values)
+        {
+            NetworkServer.UnSpawn(bomb.gameObject);
+            Destroy(bomb.gameObject);
+        }
+
+        Bomb.InstanceMap.Clear();
+        foreach (LootEntry entry in LootEntry.InstanceList)
+        {
+            NetworkServer.UnSpawn(entry.gameObject);
+            Destroy(entry.gameObject);
+        }
+
+        foreach (PlayerIdentity identity in InstanceList)
+        {
+            if (identity.player != null)
+            {
+                NetworkServer.UnSpawn(identity.player.gameObject);
+                Destroy(identity.player.gameObject);
+            }
+        }
+
+        ResetGameClientRPC();
+    }
+
+
     [Command(requiresAuthority = false)]
     private void SetSteamIDServerRPC(ulong steamID)
     {
@@ -89,6 +126,11 @@ public class PlayerIdentity : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void SpawnPlayerServerRPC(NetworkConnectionToClient conn = null)
     {
+        if (this.player != null)
+        {
+            return;
+        }
+
         GameObject gameObject = Instantiate(prefabPlayer);
         Player player = gameObject.GetComponent<Player>();
         player.networkSteamID = networkSteamID;
@@ -96,18 +138,5 @@ public class PlayerIdentity : NetworkBehaviour
             new Color(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 1f);
         player.transform.position = new Vector3(Random.Range(-5f, 5f), 0f, Random.Range(-5f, 5f));
         NetworkServer.Spawn(gameObject, conn);
-    }
-
-
-    [Command(requiresAuthority = false)]
-    public void UnSpawnPlayerServerRPC()
-    {
-        if (player == null)
-        {
-            return;
-        }
-
-        Destroy(player.gameObject);
-        NetworkServer.UnSpawn(player.gameObject);
     }
 }

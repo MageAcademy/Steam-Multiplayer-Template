@@ -43,13 +43,15 @@ public class MapManager : MonoBehaviour
 
     public LayerMask layerFloor = new LayerMask();
 
-    public Transform parentCubes = null;
+    public Transform parentEnvironment = null;
 
     public Transform parentGrids = null;
 
     public Block prefabBlock = null;
 
     public GameObject prefabCube = null;
+
+    public GameObject prefabEnvironment = null;
 
     public GameObject prefabImage = null;
 
@@ -63,6 +65,8 @@ public class MapManager : MonoBehaviour
 
     private Vector2Int lastCoordinate = new Vector2Int();
 
+    private GameObject environment = null;
+
 
     private void Awake()
     {
@@ -70,9 +74,39 @@ public class MapManager : MonoBehaviour
     }
 
 
+    public void ClearOnClient()
+    {
+        int length = parentEnvironment.childCount;
+        List<GameObject> list = new List<GameObject>();
+        for (int a = 0; a < length; ++a)
+        {
+            list.Add(parentEnvironment.GetChild(a).gameObject);
+        }
+
+        for (int a = 0; a < length; ++a)
+        {
+            Destroy(list[a]);
+        }
+
+        length = parentGrids.childCount;
+        list.Clear();
+        for (int a = 0; a < length; ++a)
+        {
+            list.Add(parentGrids.GetChild(a).gameObject);
+        }
+
+        for (int a = 0; a < length; ++a)
+        {
+            Destroy(list[a]);
+        }
+
+        Destroy(environment);
+    }
+
+
     private void CreateBlock(int x, int y, bool isDestructible)
     {
-        Block block = Instantiate(prefabBlock, parentCubes);
+        Block block = Instantiate(prefabBlock, parentEnvironment);
         block.coordinate = new Vector2Int(x, y);
         block.isDestructible = isDestructible;
         block.Initialize();
@@ -113,29 +147,31 @@ public class MapManager : MonoBehaviour
 
     public void GenerateOnClient(string json)
     {
+        GameManager.InGame = true;
+        environment = Instantiate(prefabEnvironment);
         data = JsonConvert.DeserializeObject<Data>(json);
         float playerRadius = 0.2f;
         float wallThickness = 20f;
         Vector3 floorSize = new Vector3((data.width + 2) * cellSize, 1f, (data.height + 2) * cellSize);
-        Transform wall = Instantiate(prefabCube, parentCubes).transform;
+        Transform wall = Instantiate(prefabCube, parentEnvironment).transform;
         wall.gameObject.name = "Bottom Wall";
         wall.position = new Vector3(0f, 0f, -floorSize.z / 2f - playerRadius - wallThickness / 2f);
         wall.localScale = new Vector3(floorSize.x + playerRadius * 2f + wallThickness * 2f, cellSize * 2f,
             wallThickness);
         wall.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.2f, 0f, 1f);
-        wall = Instantiate(prefabCube, parentCubes).transform;
+        wall = Instantiate(prefabCube, parentEnvironment).transform;
         wall.gameObject.name = "Top Wall";
         wall.position = new Vector3(0f, 0f, +floorSize.z / 2f + playerRadius + wallThickness / 2f);
         wall.localScale = new Vector3(floorSize.x + playerRadius * 2f + wallThickness * 2f, cellSize * 2f,
             wallThickness);
         wall.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.2f, 0f, 1f);
-        wall = Instantiate(prefabCube, parentCubes).transform;
+        wall = Instantiate(prefabCube, parentEnvironment).transform;
         wall.gameObject.name = "Left Wall";
         wall.position = new Vector3(-floorSize.x / 2f - playerRadius - wallThickness / 2f, 0f, 0f);
         wall.localScale =
             new Vector3(wallThickness, cellSize * 2f, floorSize.z + playerRadius * 2f + wallThickness * 2f);
         wall.GetComponent<MeshRenderer>().material.color = new Color(0.4f, 0.2f, 0f, 1f);
-        wall = Instantiate(prefabCube, parentCubes).transform;
+        wall = Instantiate(prefabCube, parentEnvironment).transform;
         wall.gameObject.name = "Right Wall";
         wall.position = new Vector3(floorSize.x / 2f + playerRadius + wallThickness / 2f, 0f, 0f);
         wall.localScale =

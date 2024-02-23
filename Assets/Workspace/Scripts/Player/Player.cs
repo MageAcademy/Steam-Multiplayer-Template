@@ -28,7 +28,6 @@ public class Player : NetworkBehaviour
 
     private IEnumerator Start()
     {
-        InitializeOnServerOwner();
         yield return Initialize();
     }
 
@@ -159,18 +158,6 @@ public class Player : NetworkBehaviour
 
         HandleBombInfoListClientRPC(coordinates);
         Bomb.InfoList.Clear();
-    }
-
-
-    [ServerCallback]
-    private void InitializeOnServerOwner()
-    {
-        if (!hasAuthority)
-        {
-            return;
-        }
-
-        Bomb.InstanceMap.Clear();
     }
 
     #endregion METHOD ON SERVER OWNER
