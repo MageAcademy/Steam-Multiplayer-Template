@@ -104,6 +104,7 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     private void HandleBombInfoListClientRPC(Vector2Int[] coordinates)
     {
+        AudioManager.Instance.Play("Bomb Explosion", null, MapManager.Instance.GetPositionByCoordinate(coordinates[0]));
         foreach (Vector2Int coordinate in coordinates)
         {
             PrefabManager.PrefabMap["Bomb Explosion Effect"].pool.Get(out GameObject element);

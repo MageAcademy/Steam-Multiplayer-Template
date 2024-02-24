@@ -44,6 +44,7 @@ public class PlayerPlantBomb : NetworkBehaviour
         bomb.coordinate = coordinate;
         bomb.transform.position = MapManager.Instance.GetPositionOnFloor(coordinate);
         bomb.InitializeOnServer(count, duration, player);
+        AudioManager.Instance.Play("Bomb Plant", null, bomb.transform.position);
         NetworkServer.Spawn(bomb.gameObject);
     }
 }

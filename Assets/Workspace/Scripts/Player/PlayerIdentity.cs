@@ -75,7 +75,7 @@ public class PlayerIdentity : NetworkBehaviour
     [ClientRpc]
     private void ResetGameClientRPC()
     {
-        SpawnPlayerServerRPC();
+        Local?.SpawnPlayerServerRPC();
         MapManager.Instance.ClearOnClient();
     }
 
@@ -126,17 +126,12 @@ public class PlayerIdentity : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void SpawnPlayerServerRPC(NetworkConnectionToClient conn = null)
     {
-        if (this.player != null)
-        {
-            return;
-        }
-
         GameObject gameObject = Instantiate(prefabPlayer);
         Player player = gameObject.GetComponent<Player>();
         player.networkSteamID = networkSteamID;
         player.playerAppearance.networkColor =
             new Color(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 1f);
-        player.transform.position = new Vector3(Random.Range(-5f, 5f), 0f, Random.Range(-5f, 5f));
+        player.transform.position = Vector3.zero;
         NetworkServer.Spawn(gameObject, conn);
     }
 }

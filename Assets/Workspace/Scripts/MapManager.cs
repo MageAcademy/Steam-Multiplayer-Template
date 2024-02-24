@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -55,17 +54,19 @@ public class MapManager : MonoBehaviour
 
     public GameObject prefabImage = null;
 
+    private GameObject backgroundMusic = null;
+
     private Block[,] blocks = null;
 
     private Data data = null;
+
+    private GameObject environment = null;
 
     private Image[,] grids = null;
 
     private bool isLastValid = false;
 
     private Vector2Int lastCoordinate = new Vector2Int();
-
-    private GameObject environment = null;
 
 
     private void Awake()
@@ -74,33 +75,46 @@ public class MapManager : MonoBehaviour
     }
 
 
+    private void Update()
+    {
+        RefreshGrid();
+    }
+
+
     public void ClearOnClient()
     {
-        int length = parentEnvironment.childCount;
+        if (backgroundMusic != null)
+        {
+            Destroy(backgroundMusic);
+            backgroundMusic = null;
+        }
+
+        if (environment != null)
+        {
+            Destroy(environment);
+            environment = null;
+        }
+
+        blocks = null;
+        data = null;
+        grids = null;
+        isLastValid = false;
+        lastCoordinate = new Vector2Int();
         List<GameObject> list = new List<GameObject>();
-        for (int a = 0; a < length; ++a)
+        for (int a = 0; a < parentEnvironment.childCount; ++a)
         {
             list.Add(parentEnvironment.GetChild(a).gameObject);
         }
 
-        for (int a = 0; a < length; ++a)
-        {
-            Destroy(list[a]);
-        }
-
-        length = parentGrids.childCount;
-        list.Clear();
-        for (int a = 0; a < length; ++a)
+        for (int a = 0; a < parentGrids.childCount; ++a)
         {
             list.Add(parentGrids.GetChild(a).gameObject);
         }
 
-        for (int a = 0; a < length; ++a)
+        for (int a = 0; a < list.Count; ++a)
         {
             Destroy(list[a]);
         }
-
-        Destroy(environment);
     }
 
 
@@ -148,6 +162,10 @@ public class MapManager : MonoBehaviour
     public void GenerateOnClient(string json)
     {
         GameManager.InGame = true;
+        AudioSource audioSource =
+            AudioManager.Instance.Play("Background Music", AudioManager.Instance.audioListener.transform);
+        audioSource.volume = 0.1f;
+        backgroundMusic = audioSource.gameObject;
         environment = Instantiate(prefabEnvironment);
         data = JsonConvert.DeserializeObject<Data>(json);
         float playerRadius = 0.2f;
@@ -198,8 +216,6 @@ public class MapManager : MonoBehaviour
                 }
             }
         }
-
-        StartCoroutine(RefreshGridAsync());
     }
 
 
@@ -334,41 +350,42 @@ public class MapManager : MonoBehaviour
     }
 
 
-    private IEnumerator RefreshGridAsync()
+    private void RefreshGrid()
     {
-        while (PlayerIdentity.Local != null)
+        if (PlayerIdentity.Local == null || PlayerIdentity.Local.player == null)
         {
-            Vector2Int currentCoordinate = PlayerIdentity.Local.player.playerMove.networkCoordinate;
-            bool isCurrentValid = IsCoordinateValid(currentCoordinate);
-            Type cellType = isCurrentValid ? data.cells[currentCoordinate.x, currentCoordinate.y].type : Type.Null;
-            isCurrentValid = isCurrentValid && (cellType == Type.BlockDestructible || cellType == Type.EmptyInside);
-            if (isCurrentValid)
+            return;
+        }
+
+        Vector2Int currentCoordinate = PlayerIdentity.Local.player.playerMove.networkCoordinate;
+        bool isCurrentValid = IsCoordinateValid(currentCoordinate);
+        Type cellType = isCurrentValid ? data.cells[currentCoordinate.x, currentCoordinate.y].type : Type.Null;
+        isCurrentValid = isCurrentValid && (cellType == Type.BlockDestructible || cellType == Type.EmptyInside);
+        if (isCurrentValid)
+        {
+            if (isLastValid)
             {
-                if (isLastValid)
-                {
-                    if (currentCoordinate != lastCoordinate)
-                    {
-                        grids[currentCoordinate.x, currentCoordinate.y].color = colorHighlightedGrid;
-                        grids[lastCoordinate.x, lastCoordinate.y].color = colorNormalGrid;
-                    }
-                }
-                else
+                if (currentCoordinate != lastCoordinate)
                 {
                     grids[currentCoordinate.x, currentCoordinate.y].color = colorHighlightedGrid;
+                    grids[lastCoordinate.x, lastCoordinate.y].color = colorNormalGrid;
                 }
             }
             else
             {
-                if (isLastValid)
-                {
-                    grids[lastCoordinate.x, lastCoordinate.y].color = colorNormalGrid;
-                }
+                grids[currentCoordinate.x, currentCoordinate.y].color = colorHighlightedGrid;
             }
-
-            isLastValid = isCurrentValid;
-            lastCoordinate = currentCoordinate;
-            yield return null;
         }
+        else
+        {
+            if (isLastValid)
+            {
+                grids[lastCoordinate.x, lastCoordinate.y].color = colorNormalGrid;
+            }
+        }
+
+        isLastValid = isCurrentValid;
+        lastCoordinate = currentCoordinate;
     }
 
 
