@@ -13,8 +13,7 @@ public class PlayerIdentity : NetworkBehaviour
 
     [SyncVar] public ulong networkSteamID = 0L;
 
-    [SyncVar(hook = nameof(OnSteamNameValueChange))]
-    public string networkSteamName = null;
+    [SyncVar] public string networkSteamName = null;
 
     public Player player = null;
 
@@ -33,11 +32,6 @@ public class PlayerIdentity : NetworkBehaviour
     private void OnDestroy()
     {
         Finalize();
-    }
-
-
-    private void OnSteamNameValueChange(string _, string newValue)
-    {
     }
 
 
@@ -75,8 +69,13 @@ public class PlayerIdentity : NetworkBehaviour
     [ClientRpc]
     private void ResetGameClientRPC()
     {
-        Local?.SpawnPlayerServerRPC();
+        if (Local != null)
+        {
+            Local.SpawnPlayerServerRPC();
+        }
+        
         MapManager.Instance.ClearOnClient();
+        PopupManager.Instance.Reset();
     }
 
 

@@ -36,7 +36,10 @@ public class InputManager : MonoBehaviour
             return;
         }
 
-        PlayerIdentity.Local?.player?.playerPlantBomb.PlantBombServerRPC(1, 2f);
+        if (PlayerIdentity.Local != null && PlayerIdentity.Local.player != null)
+        {
+            PlayerIdentity.Local.player.playerPlantBomb.PlantBombServerRPC(1, 2f);
+        }
     }
 
 

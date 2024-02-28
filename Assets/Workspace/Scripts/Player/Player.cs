@@ -15,6 +15,8 @@ public class Player : NetworkBehaviour
 
     public Transform playerCenter = null;
 
+    public Collider playerCollider = null;
+
     public PlayerHud playerHud = null;
 
     public PlayerMove playerMove = null;
@@ -104,13 +106,32 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     private void HandleBombInfoListClientRPC(Vector2Int[] coordinates)
     {
-        AudioManager.Instance.Play("Bomb Explosion", null, MapManager.Instance.GetPositionByCoordinate(coordinates[0]));
+        AudioManager.Instance.Play("炸弹爆炸", null, MapManager.Instance.GetPositionByCoordinate(coordinates[0]));
         foreach (Vector2Int coordinate in coordinates)
         {
             PrefabManager.PrefabMap["Bomb Explosion Effect"].pool.Get(out GameObject element);
             element.transform.position = MapManager.Instance.GetPositionByCoordinate(coordinate);
             MapManager.Instance.DestroyBlock(coordinate);
         }
+    }
+
+
+    [ClientRpc]
+    public void PlayAudioClientRPC(string name, Vector3 position)
+    {
+        AudioManager.Instance.Play(name, null, position);
+    }
+
+
+    [ClientRpc]
+    public void PlayAudioClientRPCLocalPlayerOnly(string name, Vector3 position)
+    {
+        if (!hasAuthority)
+        {
+            return;
+        }
+
+        AudioManager.Instance.Play(name, null, position);
     }
 
     #endregion RPC

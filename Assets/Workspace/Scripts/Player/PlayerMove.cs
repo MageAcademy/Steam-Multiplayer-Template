@@ -90,7 +90,9 @@ public class PlayerMove : NetworkBehaviour
             return;
         }
 
-        networkCoordinate = MapManager.Instance.GetCoordinateByPosition(transform.position);
+        networkCoordinate = player.prop.networkIsDead
+            ? new Vector2Int(-100, -100)
+            : MapManager.Instance.GetCoordinateByPosition(transform.position);
     }
 
 

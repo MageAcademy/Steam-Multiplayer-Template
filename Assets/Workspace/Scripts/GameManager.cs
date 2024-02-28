@@ -20,7 +20,10 @@ public class GameManager : MonoBehaviour
         }
 
         InGame = false;
-        PlayerIdentity.Local?.ResetGameOnServerOwner();
+        if (PlayerIdentity.Local != null)
+        {
+            PlayerIdentity.Local.ResetGameOnServerOwner();
+        }
     }
 
 
@@ -32,6 +35,9 @@ public class GameManager : MonoBehaviour
         }
 
         InGame = true;
-        PlayerIdentity.Local?.player?.GenerateMapServerRPC();
+        if (PlayerIdentity.Local != null || PlayerIdentity.Local.player != null)
+        {
+            PlayerIdentity.Local.player.GenerateMapServerRPC();
+        }
     }
 }

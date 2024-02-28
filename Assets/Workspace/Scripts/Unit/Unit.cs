@@ -42,25 +42,45 @@ public class Unit : NetworkBehaviour
     [ServerCallback]
     public static void HandleDamageOnServer(Unit source, Unit destination, float value)
     {
+        float pureValue = value;
         if (destination.type == Type.Hero)
         {
             PlayerProperty prop = destination as PlayerProperty;
-            if (value <= prop.shield)
+            if (value < 0f)
             {
-                prop.SetShieldOnServer(prop.shield - value);
-            }
-            else
-            {
-                value -= prop.shield;
-                prop.SetShieldOnServer(0f);
-                if (value < prop.health)
+                if (prop.health - value <= PlayerProperty.MAX_HEALTH)
                 {
                     prop.SetHealthOnServer(prop.health - value);
                 }
                 else
                 {
-                    prop.SetHealthOnServer(0f);
-                    prop.DieOnServer();
+                    value += PlayerProperty.MAX_HEALTH - prop.health;
+                    prop.SetHealthOnServer(PlayerProperty.MAX_HEALTH);
+                    prop.SetShieldOnServer(prop.shield - value);
+                }
+            }
+            else
+            {
+                if (value <= prop.shield)
+                {
+                    prop.SetShieldOnServer(prop.shield - value);
+                    destination.TakeDamageClientRPC(pureValue);
+                }
+                else
+                {
+                    value -= prop.shield;
+                    prop.SetShieldOnServer(0f);
+                    if (value < prop.health)
+                    {
+                        prop.SetHealthOnServer(prop.health - value);
+                        destination.TakeDamageClientRPC(pureValue);
+                    }
+                    else
+                    {
+                        prop.SetHealthOnServer(0f);
+                        prop.DieOnServer();
+                        destination.TakeFatalDamageClientRPC(pureValue);
+                    }
                 }
             }
         }
@@ -70,6 +90,13 @@ public class Unit : NetworkBehaviour
             Bomb bomb = destination as Bomb;
             bomb.DieOnServer();
         }
+    }
+
+
+    [ServerCallback]
+    public void DealDamageOnServer(Unit destination, float value)
+    {
+        HandleDamageOnServer(this, destination, value);
     }
 
 
@@ -90,10 +117,10 @@ public class Unit : NetworkBehaviour
     }
 
 
-    [ServerCallback]
-    public void DealDamageOnServer(Unit destination, float value)
+    [ClientRpc]
+    private void TakeDamageClientRPC(float value)
     {
-        HandleDamageOnServer(this, destination, value);
+        PopupManager.Instance.PlayTakeDamageEffect(value, transform.position, hasAuthority);
     }
 
 
@@ -101,5 +128,12 @@ public class Unit : NetworkBehaviour
     public void TakeDamageOnServer(Unit source, float value)
     {
         HandleDamageOnServer(source, this, value);
+    }
+
+
+    [ClientRpc]
+    private void TakeFatalDamageClientRPC(float value)
+    {
+        PopupManager.Instance.PlayTakeFatalDamageEffect(value, transform.position, hasAuthority);
     }
 }

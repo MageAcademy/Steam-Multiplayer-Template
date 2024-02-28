@@ -17,6 +17,8 @@ public class CameraController : MonoBehaviour
 
     public float teleportThreshold = 0.5f;
 
+    private bool isTargetNull = true;
+
     private bool isTweening = false;
 
     private Vector3 lastTargetPosition = new Vector3();
@@ -26,6 +28,8 @@ public class CameraController : MonoBehaviour
     private float positionY = 0f;
 
     private Transform target = null;
+
+    private Tweener tweenerCameraDistance = null;
 
 
     private void Awake()
@@ -51,24 +55,18 @@ public class CameraController : MonoBehaviour
 
     private void Follow()
     {
-        if (target == null)
-        {
-            lastTargetPosition = cameraPosition.position;
-            lastTargetPosition.y = 0f;
-            return;
-        }
-
         if (isTweening)
         {
             return;
         }
 
-        Vector3 currentTargetPosition = target.position;
+        isTargetNull = target == null;
+        Vector3 currentTargetPosition = isTargetNull ? Vector3.zero : target.position;
         currentTargetPosition.y = 0f;
         if (Vector3.Distance(currentTargetPosition, lastTargetPosition) < teleportThreshold)
         {
             lastTargetPosition = currentTargetPosition;
-            positionY = Mathf.Lerp(positionY, target.position.y, Time.deltaTime * 6f);
+            positionY = Mathf.Lerp(positionY, isTargetNull ? 0f : target.position.y, Time.deltaTime * 6f);
             currentTargetPosition.y = positionY;
             Apply(currentTargetPosition);
         }
@@ -76,13 +74,16 @@ public class CameraController : MonoBehaviour
         {
             isTweening = true;
             Vector3 startPosition = cameraPosition.position;
-            Tweener tweener = DOTween
-                .To(value => { Apply(Vector3.Lerp(startPosition, target.position, value)); }, 0f, 1f, 0.4f);
+            Tweener tweener = DOTween.To(value =>
+            {
+                Apply(Vector3.Lerp(startPosition, target == null ? Vector3.zero : target.position,
+                    value));
+            }, 0f, 1f, 0.4f);
             tweener.SetEase(Ease.InOutSine);
             tweener.onComplete = () =>
             {
                 isTweening = false;
-                lastTargetPosition = target.position;
+                lastTargetPosition = target == null ? Vector3.zero : target.position;
                 positionY = lastTargetPosition.y;
                 lastTargetPosition.y = 0f;
             };
@@ -99,7 +100,20 @@ public class CameraController : MonoBehaviour
 
     public void SetTarget(Transform target)
     {
-        positionY = target.position.y;
+        isTargetNull = target == null;
         this.target = target;
+        tweenerCameraDistance?.Kill();
+        if (isTargetNull)
+        {
+            positionY = 0f;
+            tweenerCameraDistance = DOTween
+                .To(value => { cameraDistance.localPosition = new Vector3(0f, 0f, value); }, -10f, -24f, 1.2f)
+                .SetEase(Ease.InOutCirc);
+        }
+        else
+        {
+            cameraDistance.localPosition = new Vector3(0f, 0f, -10f);
+            positionY = target.position.y;
+        }
     }
 }

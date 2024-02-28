@@ -134,6 +134,19 @@ public class PlayerProperty : Unit
     }
 
 
+    public override void Die()
+    {
+        base.Die();
+        player.playerAppearance.Hide();
+        player.playerCollider.enabled = false;
+        player.playerHud.gameObject.SetActive(false);
+        if (hasAuthority)
+        {
+            PlayerMove.IsEnabled = false;
+        }
+    }
+
+
     public void Initialize(Player player)
     {
         this.player = player;

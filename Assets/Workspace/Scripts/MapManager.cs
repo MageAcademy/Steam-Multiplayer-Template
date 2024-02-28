@@ -163,8 +163,8 @@ public class MapManager : MonoBehaviour
     {
         GameManager.InGame = true;
         AudioSource audioSource =
-            AudioManager.Instance.Play("Background Music", AudioManager.Instance.audioListener.transform);
-        audioSource.volume = 0.1f;
+            AudioManager.Instance.Play("背景音乐", AudioManager.Instance.audioListener.transform);
+        audioSource.volume = 0.4f;
         backgroundMusic = audioSource.gameObject;
         environment = Instantiate(prefabEnvironment);
         data = JsonConvert.DeserializeObject<Data>(json);
@@ -354,6 +354,12 @@ public class MapManager : MonoBehaviour
     {
         if (PlayerIdentity.Local == null || PlayerIdentity.Local.player == null)
         {
+            if (isLastValid)
+            {
+                grids[lastCoordinate.x, lastCoordinate.y].color = colorNormalGrid;
+                isLastValid = false;
+            }
+
             return;
         }
 

@@ -9,6 +9,15 @@ public class PlayerAppearance : NetworkBehaviour
     public List<MeshRenderer> meshRendererList = new List<MeshRenderer>();
 
 
+    public void Hide()
+    {
+        foreach (MeshRenderer meshRenderer in meshRendererList)
+        {
+            meshRenderer.enabled = false;
+        }
+    }
+
+
     public void Initialize()
     {
         foreach (MeshRenderer meshRenderer in meshRendererList)

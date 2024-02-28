@@ -175,6 +175,7 @@ public class LootEntry : NetworkBehaviour
 
         if (flag)
         {
+            player.PlayAudioClientRPCLocalPlayerOnly("道具拾取", transform.position);
             NetworkServer.UnSpawn(gameObject);
             Destroy(gameObject);
         }
