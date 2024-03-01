@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Mirror;
 using UnityEngine;
 
@@ -102,6 +103,13 @@ public class Unit : NetworkBehaviour
                         {
                             source.DealFatalDamageClientRPC(trueDamage, destination.transform.position,
                                 destination.networkUnitName, source.networkUnitName);
+                            if (source.type == Type.Hero)
+                            {
+                                PlayerProperty sourceProp = source as PlayerProperty;
+                                sourceProp.SetShieldOnServer(PlayerProperty.MAX_SHIELD_LEVEL *
+                                                             PlayerProperty.SHIELD_PER_LEVEL);
+                                sourceProp.player.PlayRestoreShieldEffectClientRPC(sourceProp.shieldLevel);
+                            }
                         }
                     }
                 }
@@ -148,6 +156,16 @@ public class Unit : NetworkBehaviour
         if (networkIsDead)
         {
             return;
+        }
+
+        if (type == Type.Hero)
+        {
+            PlayerProperty prop = this as PlayerProperty;
+            if (PlayerIdentity.InstanceList.Count(identity =>
+                    identity.player != null && !identity.player.prop.networkIsDead) <= 1)
+            {
+                return;
+            }
         }
 
         networkIsDead = true;

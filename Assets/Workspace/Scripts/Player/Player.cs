@@ -27,6 +27,10 @@ public class Player : NetworkBehaviour
 
     public PlayerProperty prop = null;
 
+    public ParticleSystem restoreShieldEffect = null;
+
+    private int hashFinalColor = Shader.PropertyToID("_FinalColor");
+
 
     private IEnumerator Start()
     {
@@ -138,6 +142,23 @@ public class Player : NetworkBehaviour
         }
 
         AudioManager.Instance.Play(name, null, position);
+    }
+
+
+    [ClientRpc]
+    public void PlayRestoreShieldEffectClientRPC(int shieldLevel)
+    {
+        restoreShieldEffect.gameObject.SetActive(true);
+        restoreShieldEffect.Stop();
+        restoreShieldEffect.GetComponent<Renderer>().material
+            .SetColor(hashFinalColor, LootManager.Instance.colorQuality[shieldLevel - 2]);
+        restoreShieldEffect.Play();
+        if (!hasAuthority)
+        {
+            return;
+        }
+
+        AudioManager.Instance.Play("护甲恢复", AudioManager.Instance.audioListener.transform);
     }
 
     #endregion RPC

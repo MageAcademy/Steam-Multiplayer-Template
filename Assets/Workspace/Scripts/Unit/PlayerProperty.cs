@@ -144,6 +144,7 @@ public class PlayerProperty : Unit
         {
             PlayerMove.IsEnabled = false;
             PlayerPlantBomb.IsEnabled = false;
+            PopupManager.Instance.PlayDeathEffect();
         }
     }
 

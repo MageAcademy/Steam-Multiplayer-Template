@@ -101,7 +101,7 @@ public class Bomb : Unit
     [ServerCallback]
     private void ExplodeOnServer()
     {
-        TakeDamageOnServer(null, 0f);
+        TakeDamageOnServer(damageSource.prop, 0f);
         AddInfoOnServer(coordinate);
         MapManager.Type cellType = MapManager.Type.Null;
         bool[] flags = new bool[4]; // left, right, back, front

@@ -99,14 +99,6 @@ public class PopupManager : MonoBehaviour
             return;
         }
 
-        if (isDestination)
-        {
-            CameraController.Instance.SetTarget(null);
-            tweenerTakeFatalDamageEffect?.Kill();
-            tweenerTakeFatalDamageEffect = DOTween
-                .To(value => { colorGrading.saturation.value = value; }, 0f, -60f, 1.2f).SetEase(Ease.InOutSine);
-        }
-
         if (isSource)
         {
             PopupHud hud2 = Instantiate(prefab, parentKnockDownLocal);
@@ -145,6 +137,15 @@ public class PopupManager : MonoBehaviour
     }
 
 
+    public void PlayDeathEffect()
+    {
+        CameraController.Instance.SetTarget(null);
+        tweenerTakeFatalDamageEffect?.Kill();
+        tweenerTakeFatalDamageEffect = DOTween.To(value => { colorGrading.saturation.value = value; }, 0f, -60f, 1.2f)
+            .SetEase(Ease.InOutSine);
+    }
+
+
     public void PlayKnockDownGlobalEffect(string destinationName, string sourceName)
     {
         PopupHud hud = Instantiate(prefab, parentKnockDownGlobal);
@@ -180,5 +181,11 @@ public class PopupManager : MonoBehaviour
         tweenerTakeFatalDamageEffect?.Kill();
         colorGrading.saturation.value = 0f;
         vignette.intensity.value = 0f;
+    }
+
+
+    public void SetAlivePlayerCount(int count)
+    {
+        print(count);
     }
 }
