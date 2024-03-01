@@ -69,6 +69,7 @@ public class Player : NetworkBehaviour
                     {
                         CameraController.Instance.SetTarget(transform);
                         PlayerMove.IsEnabled = true;
+                        PlayerPlantBomb.IsEnabled = true;
                     }
 
                     playerIdentity.player = this;
@@ -79,6 +80,11 @@ public class Player : NetworkBehaviour
                     playerMove.Initialize(this);
                     playerPlantBomb.Initialize(this);
                     prop.Initialize(this);
+                    if (isServer)
+                    {
+                        prop.networkUnitName = identity.networkSteamName;
+                    }
+
                     break;
                 }
             }

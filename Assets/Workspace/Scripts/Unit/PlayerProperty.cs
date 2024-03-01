@@ -143,6 +143,7 @@ public class PlayerProperty : Unit
         if (hasAuthority)
         {
             PlayerMove.IsEnabled = false;
+            PlayerPlantBomb.IsEnabled = false;
         }
     }
 

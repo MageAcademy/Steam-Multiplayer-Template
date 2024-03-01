@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class PlayerPlantBomb : NetworkBehaviour
 {
+    public static bool IsEnabled = false;
+
     private Player player = null;
 
     private GameObject prefabBomb = null;
@@ -18,7 +20,7 @@ public class PlayerPlantBomb : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void PlantBombServerRPC(int count, float duration)
     {
-        if (player.prop.remainingBombCount < count)
+        if (!IsEnabled || player.prop.remainingBombCount < count)
         {
             return;
         }
@@ -43,12 +45,13 @@ public class PlayerPlantBomb : NetworkBehaviour
         Bomb bomb = Instantiate(prefabBomb).GetComponent<Bomb>();
         bomb.coordinate = coordinate;
         bomb.transform.position = MapManager.Instance.GetPositionOnFloor(coordinate);
+        bomb.networkUnitName = "炸弹";
         bomb.InitializeOnServer(count, duration, player);
         if (PlayerIdentity.Local != null && PlayerIdentity.Local.player != null)
         {
             PlayerIdentity.Local.player.PlayAudioClientRPCLocalPlayerOnly("炸弹安放", bomb.transform.position);
         }
-        
+
         NetworkServer.Spawn(bomb.gameObject);
     }
 }

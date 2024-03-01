@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Mirror;
+using UnityEngine;
 
 public class Unit : NetworkBehaviour
 {
@@ -16,6 +17,8 @@ public class Unit : NetworkBehaviour
     public bool networkIsDead = false;
 
     public Type type = Type.Null;
+
+    [SyncVar] public string networkUnitName = null;
 
 
     private void Start()
@@ -46,6 +49,7 @@ public class Unit : NetworkBehaviour
         if (destination.type == Type.Hero)
         {
             PlayerProperty prop = destination as PlayerProperty;
+            float totalHealthAndShield = prop.health + prop.shield;
             if (value < 0f)
             {
                 if (prop.health - value <= PlayerProperty.MAX_HEALTH)
@@ -64,7 +68,13 @@ public class Unit : NetworkBehaviour
                 if (value <= prop.shield)
                 {
                     prop.SetShieldOnServer(prop.shield - value);
-                    destination.TakeDamageClientRPC(pureValue);
+                    destination.TakeDamageClientRPC(pureValue, destination.transform.position,
+                        destination.networkUnitName, source.networkUnitName);
+                    if (destination != source)
+                    {
+                        source.DealDamageClientRPC(pureValue, destination.transform.position,
+                            destination.networkUnitName, source.networkUnitName);
+                    }
                 }
                 else
                 {
@@ -73,13 +83,26 @@ public class Unit : NetworkBehaviour
                     if (value < prop.health)
                     {
                         prop.SetHealthOnServer(prop.health - value);
-                        destination.TakeDamageClientRPC(pureValue);
+                        destination.TakeDamageClientRPC(pureValue, destination.transform.position,
+                            destination.networkUnitName, source.networkUnitName);
+                        if (destination != source)
+                        {
+                            source.DealDamageClientRPC(pureValue, destination.transform.position,
+                                destination.networkUnitName, source.networkUnitName);
+                        }
                     }
                     else
                     {
+                        float trueDamage = Mathf.Min(pureValue, totalHealthAndShield);
                         prop.SetHealthOnServer(0f);
                         prop.DieOnServer();
-                        destination.TakeFatalDamageClientRPC(pureValue);
+                        destination.TakeFatalDamageClientRPC(trueDamage, destination.transform.position,
+                            destination.networkUnitName, source.networkUnitName);
+                        if (destination != source)
+                        {
+                            source.DealFatalDamageClientRPC(trueDamage, destination.transform.position,
+                                destination.networkUnitName, source.networkUnitName);
+                        }
                     }
                 }
             }
@@ -93,10 +116,24 @@ public class Unit : NetworkBehaviour
     }
 
 
+    [ClientRpc]
+    public void DealDamageClientRPC(float value, Vector3 position, string destinationName, string sourceName)
+    {
+        PopupManager.Instance.PlayDamageEffect(value, position, destinationName, sourceName, false, hasAuthority);
+    }
+
+
     [ServerCallback]
     public void DealDamageOnServer(Unit destination, float value)
     {
         HandleDamageOnServer(this, destination, value);
+    }
+
+
+    [ClientRpc]
+    public void DealFatalDamageClientRPC(float value, Vector3 position, string destinationName, string sourceName)
+    {
+        PopupManager.Instance.PlayFatalDamageEffect(value, position, destinationName, sourceName, false, hasAuthority);
     }
 
 
@@ -118,9 +155,9 @@ public class Unit : NetworkBehaviour
 
 
     [ClientRpc]
-    private void TakeDamageClientRPC(float value)
+    private void TakeDamageClientRPC(float value, Vector3 position, string destinationName, string sourceName)
     {
-        PopupManager.Instance.PlayTakeDamageEffect(value, transform.position, hasAuthority);
+        PopupManager.Instance.PlayDamageEffect(value, position, destinationName, sourceName, hasAuthority, false);
     }
 
 
@@ -132,8 +169,9 @@ public class Unit : NetworkBehaviour
 
 
     [ClientRpc]
-    private void TakeFatalDamageClientRPC(float value)
+    private void TakeFatalDamageClientRPC(float value, Vector3 position, string destinationName, string sourceName)
     {
-        PopupManager.Instance.PlayTakeFatalDamageEffect(value, transform.position, hasAuthority);
+        PopupManager.Instance.PlayFatalDamageEffect(value, position, destinationName, sourceName, hasAuthority, false);
+        PopupManager.Instance.PlayKnockDownGlobalEffect(destinationName, sourceName);
     }
 }
