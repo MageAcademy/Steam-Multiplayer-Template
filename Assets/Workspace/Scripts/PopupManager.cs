@@ -21,13 +21,21 @@ public class PopupManager : MonoBehaviour
 
     public TMP_FontAsset fontPingfang = null;
 
+    public GameObject panelStatisticsHud = null;
+
     public Transform parentKnockDownGlobal = null;
 
     public Transform parentKnockDownLocal = null;
 
     public Transform parentPopupHud = null;
 
-    public PopupHud prefab = null;
+    public Transform parentStatisticsHud = null;
+
+    public PopupHud prefabPopupHud = null;
+
+    public StatisticsHud prefabStatisticsHud = null;
+
+    public TextMeshProUGUI textAlivePlayerCount = null;
 
     public PostProcessVolume volume = null;
 
@@ -55,6 +63,69 @@ public class PopupManager : MonoBehaviour
     }
 
 
+    public void DrawStatisticsPanel(List<PlayerStatistics.Data> dataList)
+    {
+        StatisticsHud hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+        hud.text.color = Color.white;
+        hud.text.text = "名称";
+        hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+        hud.text.color = Color.white;
+        hud.text.text = "名次";
+        hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+        hud.text.color = Color.white;
+        hud.text.text = "击杀数";
+        hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+        hud.text.color = Color.white;
+        hud.text.text = "造成伤害";
+        hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+        hud.text.color = Color.white;
+        hud.text.text = "承受伤害";
+        foreach (PlayerStatistics.Data data in dataList)
+        {
+            hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+            hud.text.color = Color.white;
+            hud.text.text = data.name;
+            hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+            hud.text.color = data.rank.isLowest
+                ? LootManager.Instance.colorQuality[3]
+                : LootManager.Instance.colorQuality[0];
+            hud.text.text = data.rank.value.ToString();
+            hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+            hud.text.color = data.killCount.isHighest
+                ? LootManager.Instance.colorQuality[3]
+                : LootManager.Instance.colorQuality[0];
+            hud.text.text = data.killCount.value.ToString();
+            hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+            hud.text.color = data.dealDamage.isHighest
+                ? LootManager.Instance.colorQuality[3]
+                : LootManager.Instance.colorQuality[0];
+            hud.text.text = data.dealDamage.value.ToString("F0");
+            hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
+            hud.text.color = data.takeDamage.isHighest
+                ? LootManager.Instance.colorQuality[3]
+                : LootManager.Instance.colorQuality[0];
+            hud.text.text = data.takeDamage.value.ToString("F0");
+        }
+    }
+
+
+    public void HideStatisticsPanel()
+    {
+        List<GameObject> list = new List<GameObject>();
+        for (int a = 0; a < parentStatisticsHud.childCount; ++a)
+        {
+            list.Add(parentStatisticsHud.GetChild(a).gameObject);
+        }
+
+        for (int a = 0; a < list.Count; ++a)
+        {
+            Destroy(list[a]);
+        }
+
+        panelStatisticsHud.SetActive(false);
+    }
+
+
     public void PlayDamageEffect(float value, Vector3 position, string destinationName, string sourceName,
         bool isDestination, bool isSource)
     {
@@ -71,7 +142,7 @@ public class PopupManager : MonoBehaviour
         }
 
         AudioManager.Instance.Play("玩家击中", null, position);
-        PopupHud hud = Instantiate(prefab, parentPopupHud);
+        PopupHud hud = Instantiate(prefabPopupHud, parentPopupHud);
         hud.image.color = Color.clear;
         hud.needFollow = true;
         hud.position = position + new Vector3(0f, 0.6f, 0f);
@@ -101,7 +172,7 @@ public class PopupManager : MonoBehaviour
 
         if (isSource)
         {
-            PopupHud hud2 = Instantiate(prefab, parentKnockDownLocal);
+            PopupHud hud2 = Instantiate(prefabPopupHud, parentKnockDownLocal);
             hud2.image.color = new Color(0f, 0f, 0f, 0.6f);
             hud2.needFollow = false;
             hud2.text.color = Color.white;
@@ -118,7 +189,7 @@ public class PopupManager : MonoBehaviour
             hud2.tweener.onComplete = () => { Destroy(hud2.gameObject); };
         }
 
-        PopupHud hud3 = Instantiate(prefab, parentPopupHud);
+        PopupHud hud3 = Instantiate(prefabPopupHud, parentPopupHud);
         hud3.image.color = Color.clear;
         hud3.needFollow = true;
         hud3.position = position + new Vector3(0f, 0.6f, 0f);
@@ -148,7 +219,7 @@ public class PopupManager : MonoBehaviour
 
     public void PlayKnockDownGlobalEffect(string destinationName, string sourceName)
     {
-        PopupHud hud = Instantiate(prefab, parentKnockDownGlobal);
+        PopupHud hud = Instantiate(prefabPopupHud, parentKnockDownGlobal);
         popopHudQueue.Add(hud);
         while (popopHudQueue.Count > 6)
         {
@@ -177,6 +248,7 @@ public class PopupManager : MonoBehaviour
 
     public void Reset()
     {
+        ShowStatisticsPanel();
         tweenerTakeDamageEffect?.Kill();
         tweenerTakeFatalDamageEffect?.Kill();
         colorGrading.saturation.value = 0f;
@@ -186,6 +258,12 @@ public class PopupManager : MonoBehaviour
 
     public void SetAlivePlayerCount(int count)
     {
-        print(count);
+        textAlivePlayerCount.text = $"存活：{count}";
+    }
+
+
+    public void ShowStatisticsPanel()
+    {
+        panelStatisticsHud.SetActive(true);
     }
 }

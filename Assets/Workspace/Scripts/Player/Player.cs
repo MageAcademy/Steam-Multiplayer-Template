@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Mirror;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public class Player : NetworkBehaviour
@@ -8,6 +10,8 @@ public class Player : NetworkBehaviour
     public PlayerIdentity identity = null;
 
     public bool isInitialized = false;
+
+    [SyncVar] public float networkGameTime = 0f;
 
     [SyncVar] public ulong networkSteamID = 0L;
 
@@ -29,6 +33,8 @@ public class Player : NetworkBehaviour
 
     public ParticleSystem restoreShieldEffect = null;
 
+    public PlayerStatistics stat = null;
+
     private int hashFinalColor = Shader.PropertyToID("_FinalColor");
 
 
@@ -42,6 +48,7 @@ public class Player : NetworkBehaviour
     {
         CheckNull();
         HandleBombInfoListOnServerOwner();
+        RefreshGameTimeOnServer();
     }
 
 
@@ -89,10 +96,24 @@ public class Player : NetworkBehaviour
                         prop.networkUnitName = identity.networkSteamName;
                     }
 
+                    stat.Initialize(this);
+                    PopupManager.Instance.SetAlivePlayerCount(PlayerIdentity.GetAlivePlayerCount());
                     break;
                 }
             }
         }
+    }
+
+
+    [ServerCallback]
+    private void RefreshGameTimeOnServer()
+    {
+        if (!GameManager.InGame)
+        {
+            return;
+        }
+
+        networkGameTime += Time.deltaTime;
     }
 
 
@@ -108,7 +129,7 @@ public class Player : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void GenerateMapServerRPC()
     {
-        string json = MapManager.Instance.GenerateOnServer(20, 20);
+        string json = MapManager.Instance.GenerateOnServer(GameManager.MapSize.x, GameManager.MapSize.y);
         GenerateMapClientRPC(json);
     }
 
@@ -123,6 +144,13 @@ public class Player : NetworkBehaviour
             element.transform.position = MapManager.Instance.GetPositionByCoordinate(coordinate);
             MapManager.Instance.DestroyBlock(coordinate);
         }
+    }
+
+
+    [ClientRpc]
+    private void HandlePlayerStatisticsClientRPC(string json)
+    {
+        PopupManager.Instance.DrawStatisticsPanel(JsonConvert.DeserializeObject<List<PlayerStatistics.Data>>(json));
     }
 
 
@@ -158,7 +186,8 @@ public class Player : NetworkBehaviour
             return;
         }
 
-        AudioManager.Instance.Play("护甲恢复", AudioManager.Instance.audioListener.transform);
+        AudioManager.Instance.Play("护甲恢复", AudioManager.Instance.audioListener.transform, Vector3.zero, -1f,
+            (ulong)(44100f * 0.2f));
     }
 
     #endregion RPC
@@ -186,7 +215,7 @@ public class Player : NetworkBehaviour
             Bomb.Info info = Bomb.InfoList.Find(info => info.coordinate == prop.player.playerMove.networkCoordinate);
             if (info != null)
             {
-                prop.TakeDamageOnServer(info.damageSource.prop, 400f);
+                prop.TakeDamageOnServer(info.damageSource.prop, Bomb.DAMAGE, Unit.DamageType.Null);
             }
         }
 
@@ -207,6 +236,119 @@ public class Player : NetworkBehaviour
 
         HandleBombInfoListClientRPC(coordinates);
         Bomb.InfoList.Clear();
+    }
+
+
+    [ServerCallback]
+    public void HandlePlayerStatisticsOnServerOwner()
+    {
+        List<PlayerStatistics.Data> dataList = new List<PlayerStatistics.Data>();
+        foreach (PlayerIdentity identity in PlayerIdentity.InstanceList)
+        {
+            if (identity == null || identity.player == null)
+            {
+                continue;
+            }
+
+            dataList.Add(identity.player.stat.GetData());
+        }
+
+        PlayerStatistics.Data highestData = new PlayerStatistics.Data();
+        PlayerStatistics.Data lowestData = new PlayerStatistics.Data
+        {
+            dealDamage = new PlayerStatistics.FloatValue { value = float.MaxValue },
+            killCount = new PlayerStatistics.IntValue { value = int.MaxValue },
+            rank = new PlayerStatistics.IntValue { value = int.MaxValue },
+            takeDamage = new PlayerStatistics.FloatValue { value = float.MaxValue }
+        };
+        foreach (PlayerStatistics.Data data in dataList)
+        {
+            if (data.dealDamage.value > highestData.dealDamage.value)
+            {
+                highestData.dealDamage.value = data.dealDamage.value;
+            }
+
+            if (data.dealDamage.value < lowestData.dealDamage.value)
+            {
+                lowestData.dealDamage.value = data.dealDamage.value;
+            }
+
+            if (data.killCount.value > highestData.killCount.value)
+            {
+                highestData.killCount.value = data.killCount.value;
+            }
+
+            if (data.killCount.value < lowestData.killCount.value)
+            {
+                lowestData.killCount.value = data.killCount.value;
+            }
+
+            if (data.rank.value > highestData.rank.value)
+            {
+                highestData.rank.value = data.rank.value;
+            }
+
+            if (data.rank.value < lowestData.rank.value)
+            {
+                lowestData.rank.value = data.rank.value;
+            }
+
+            if (data.takeDamage.value > highestData.takeDamage.value)
+            {
+                highestData.takeDamage.value = data.takeDamage.value;
+            }
+
+            if (data.takeDamage.value < lowestData.takeDamage.value)
+            {
+                lowestData.takeDamage.value = data.takeDamage.value;
+            }
+        }
+
+        foreach (PlayerStatistics.Data data in dataList)
+        {
+            if (data.dealDamage.value == highestData.dealDamage.value)
+            {
+                data.dealDamage.isHighest = true;
+            }
+
+            if (data.dealDamage.value == lowestData.dealDamage.value)
+            {
+                data.dealDamage.isLowest = true;
+            }
+
+            if (data.killCount.value == highestData.killCount.value)
+            {
+                data.killCount.isHighest = true;
+            }
+
+            if (data.killCount.value == lowestData.killCount.value)
+            {
+                data.killCount.isLowest = true;
+            }
+
+            if (data.rank.value == highestData.rank.value)
+            {
+                data.rank.isHighest = true;
+            }
+
+            if (data.rank.value == lowestData.rank.value)
+            {
+                data.rank.isLowest = true;
+            }
+
+            if (data.takeDamage.value == highestData.takeDamage.value)
+            {
+                data.takeDamage.isHighest = true;
+            }
+
+            if (data.takeDamage.value == lowestData.takeDamage.value)
+            {
+                data.takeDamage.isLowest = true;
+            }
+        }
+
+        HandlePlayerStatisticsClientRPC(
+            JsonConvert.SerializeObject(dataList.OrderBy(data => data.rank.value).ToList(),Formatting.Indented));
     }
 
     #endregion METHOD ON SERVER OWNER

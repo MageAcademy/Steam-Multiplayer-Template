@@ -41,7 +41,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 398697182536892353}
   serializedVersion: 8
-  lengthInSec: 3
+  lengthInSec: 2.2
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 1
@@ -116,7 +116,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2.8
+      scalar: 2
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -5095,6 +5095,7 @@ GameObject:
   - component: {fileID: 4386992124662483646}
   - component: {fileID: -5471309093029883109}
   - component: {fileID: -4212991811704288162}
+  - component: {fileID: 4348597519835687986}
   - component: {fileID: 3946797876118791845}
   - component: {fileID: 3886943722383349527}
   - component: {fileID: 278683303767171932}
@@ -5141,7 +5142,7 @@ MonoBehaviour:
   syncInterval: 0
   identity: {fileID: 0}
   isInitialized: 0
-  networkAlivePlayerCount: 0
+  networkGameTime: 0
   networkSteamID: 0
   playerAppearance: {fileID: 8823130397067795538}
   playerCenter: {fileID: 5702534447475953727}
@@ -5152,6 +5153,7 @@ MonoBehaviour:
   playerTop: {fileID: 8748866548122480871}
   prop: {fileID: -4212991811704288162}
   restoreShieldEffect: {fileID: 8536427297515758366}
+  stat: {fileID: 4348597519835687986}
 --- !u!114 &8823130397067795538
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5218,11 +5220,29 @@ MonoBehaviour:
   remainingBombCount: 1
   bombCount: 1
   bombRange: 1
-  health: 1000
+  health: 500
   moveSpeed: 4
   player: {fileID: 0}
   shield: 500
   shieldLevel: 2
+--- !u!114 &4348597519835687986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7381077869258326426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb360f74d1d8c4041842a6adf239221f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0
+  networkDealDamage: 0
+  networkKillCount: 0
+  networkRank: 0
+  networkTakeDamage: 0
 --- !u!95 &3946797876118791845
 Animator:
   serializedVersion: 5

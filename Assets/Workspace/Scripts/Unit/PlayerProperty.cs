@@ -28,7 +28,7 @@ public class PlayerProperty : Unit
 
     public const int MAX_BOMB_RANGE = 5;
 
-    public const float MAX_HEALTH = 1000f;
+    public const float MAX_HEALTH = 500f;
 
     public const float MAX_MOVE_SPEED = 10f;
 

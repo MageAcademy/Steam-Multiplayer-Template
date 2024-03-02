@@ -13,6 +13,8 @@ public class Bomb : Unit
         public Player damageSource = null;
     }
 
+    public const float DAMAGE = 600f;
+
     public static List<Info> InfoList = new List<Info>(); // server owner only
 
     public static Dictionary<Vector2Int, Bomb> InstanceMap = new Dictionary<Vector2Int, Bomb>(); // server only
@@ -101,7 +103,7 @@ public class Bomb : Unit
     [ServerCallback]
     private void ExplodeOnServer()
     {
-        TakeDamageOnServer(damageSource.prop, 0f);
+        TakeDamageOnServer(damageSource.prop, 0f, DamageType.Null);
         AddInfoOnServer(coordinate);
         MapManager.Type cellType = MapManager.Type.Null;
         bool[] flags = new bool[4]; // left, right, back, front

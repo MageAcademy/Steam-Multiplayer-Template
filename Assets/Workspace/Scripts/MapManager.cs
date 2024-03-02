@@ -20,6 +20,10 @@ public class MapManager : MonoBehaviour
 
         public int height = 0;
 
+        public Vector3 safeZoneEndCenter = new Vector3();
+
+        public float safeZoneStartScale = 0f;
+
         public int width = 0;
     }
 
@@ -40,6 +44,8 @@ public class MapManager : MonoBehaviour
 
     public Color colorNormalGrid = new Color(0f, 0f, 0f, 10f / 255f);
 
+    public Data data = null;
+
     public LayerMask layerFloor = new LayerMask();
 
     public Transform parentEnvironment = null;
@@ -57,8 +63,6 @@ public class MapManager : MonoBehaviour
     private GameObject backgroundMusic = null;
 
     private Block[,] blocks = null;
-
-    private Data data = null;
 
     private GameObject environment = null;
 
@@ -83,6 +87,8 @@ public class MapManager : MonoBehaviour
 
     public void ClearOnClient()
     {
+        GameManager.InGame = false;
+        SafeZone.Instance.Hide();
         if (backgroundMusic != null)
         {
             Destroy(backgroundMusic);
@@ -162,6 +168,7 @@ public class MapManager : MonoBehaviour
     public void GenerateOnClient(string json)
     {
         GameManager.InGame = true;
+        SafeZone.Instance.Show();
         AudioSource audioSource =
             AudioManager.Instance.Play("背景音乐", AudioManager.Instance.audioListener.transform);
         audioSource.volume = 0.4f;
@@ -227,6 +234,9 @@ public class MapManager : MonoBehaviour
             height = height,
             width = width
         };
+        data.safeZoneEndCenter =
+            GetPositionByCoordinate(new Vector2Int(Random.Range(0, width), Random.Range(0, height)));
+        data.safeZoneStartScale = (Mathf.Max(height, width) + 4f) * cellSize * Mathf.Sqrt(2f);
         RandomManager.IntType[] probabilities =
         {
             new RandomManager.IntType { value = 1, weight = 2f },
@@ -265,7 +275,7 @@ public class MapManager : MonoBehaviour
             SetCell(coordinate.x + 1, coordinate.y, Type.EmptyInside);
         }
 
-        return JsonConvert.SerializeObject(data, Formatting.None);
+        return JsonConvert.SerializeObject(data, Formatting.None, new ConverterVector3());
     }
 
 

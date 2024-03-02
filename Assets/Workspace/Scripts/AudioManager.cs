@@ -28,7 +28,8 @@ public class AudioManager : MonoBehaviour
     }
 
 
-    public AudioSource Play(string name, Transform parent = null, Vector3 position = default, float duration = -1f)
+    public AudioSource Play(string name, Transform parent = null, Vector3 position = default, float duration = -1f,
+        ulong delay = 0L)
     {
         Data data = dataList.Find(data => data.name == name);
         if (data == null)
@@ -41,7 +42,7 @@ public class AudioManager : MonoBehaviour
         audioSource.transform.localPosition = position;
         AudioClip clip = data.clips[randomIndex];
         audioSource.clip = clip;
-        audioSource.Play();
+        audioSource.PlayDelayed(delay);
         if (duration < 0f)
         {
             duration = clip.length;

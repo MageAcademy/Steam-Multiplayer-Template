@@ -1,6 +1,7 @@
 #pragma warning disable 465
 
 using System.Collections.Generic;
+using System.Linq;
 using Mirror;
 using Steamworks;
 using UnityEngine;
@@ -42,6 +43,12 @@ public class PlayerIdentity : NetworkBehaviour
         {
             Local = null;
         }
+    }
+
+
+    public static int GetAlivePlayerCount()
+    {
+        return InstanceList.Count(identity => identity.player != null && !identity.player.prop.networkIsDead);
     }
 
 

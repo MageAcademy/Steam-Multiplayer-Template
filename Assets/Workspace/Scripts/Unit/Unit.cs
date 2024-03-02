@@ -1,15 +1,23 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Mirror;
 using UnityEngine;
 
 public class Unit : NetworkBehaviour
 {
+    public enum DamageType
+    {
+        HealthOnly,
+        Null,
+        ShieldOnly
+    }
+
     public enum Type
     {
         Bomb,
         Hero,
-        Null
+        Null,
+        SafeZone
     }
 
     public static List<Unit> InstanceList = new List<Unit>();
@@ -44,36 +52,43 @@ public class Unit : NetworkBehaviour
 
 
     [ServerCallback]
-    public static void HandleDamageOnServer(Unit source, Unit destination, float value)
+    public static void HandleDamageOnServer(Unit source, Unit destination, float value, DamageType damageType)
     {
         float pureValue = value;
         if (destination.type == Type.Hero)
         {
             PlayerProperty prop = destination as PlayerProperty;
-            float totalHealthAndShield = prop.health + prop.shield;
-            if (value < 0f)
+            float totalValue = 0f;
+            if (damageType == DamageType.Null)
             {
-                if (prop.health - value <= PlayerProperty.MAX_HEALTH)
-                {
-                    prop.SetHealthOnServer(prop.health - value);
-                }
-                else
-                {
-                    value += PlayerProperty.MAX_HEALTH - prop.health;
-                    prop.SetHealthOnServer(PlayerProperty.MAX_HEALTH);
-                    prop.SetShieldOnServer(prop.shield - value);
-                }
+                totalValue = prop.health + prop.shield;
             }
-            else
+            else if (damageType == DamageType.HealthOnly)
+            {
+                totalValue = prop.health;
+            }
+            else if (damageType == DamageType.ShieldOnly)
+            {
+                totalValue = prop.shield;
+            }
+
+            float trueValue = Mathf.Min(pureValue, totalValue);
+            prop.player.stat.networkTakeDamage += trueValue;
+            if (source.type == Type.Hero && destination != source)
+            {
+                (source as PlayerProperty).player.stat.networkDealDamage += trueValue;
+            }
+
+            if (damageType == DamageType.Null)
             {
                 if (value <= prop.shield)
                 {
                     prop.SetShieldOnServer(prop.shield - value);
-                    destination.TakeDamageClientRPC(pureValue, destination.transform.position,
+                    destination.TakeDamageClientRPC(trueValue, destination.transform.position,
                         destination.networkUnitName, source.networkUnitName);
                     if (destination != source)
                     {
-                        source.DealDamageClientRPC(pureValue, destination.transform.position,
+                        source.DealDamageClientRPC(trueValue, destination.transform.position,
                             destination.networkUnitName, source.networkUnitName);
                     }
                 }
@@ -84,28 +99,33 @@ public class Unit : NetworkBehaviour
                     if (value < prop.health)
                     {
                         prop.SetHealthOnServer(prop.health - value);
-                        destination.TakeDamageClientRPC(pureValue, destination.transform.position,
+                        destination.TakeDamageClientRPC(trueValue, destination.transform.position,
                             destination.networkUnitName, source.networkUnitName);
                         if (destination != source)
                         {
-                            source.DealDamageClientRPC(pureValue, destination.transform.position,
+                            source.DealDamageClientRPC(trueValue, destination.transform.position,
                                 destination.networkUnitName, source.networkUnitName);
                         }
                     }
                     else
                     {
-                        float trueDamage = Mathf.Min(pureValue, totalHealthAndShield);
+                        if (source.type == Type.Hero && destination != source)
+                        {
+                            ++(source as PlayerProperty).player.stat.networkKillCount;
+                        }
+
                         prop.SetHealthOnServer(0f);
                         prop.DieOnServer();
-                        destination.TakeFatalDamageClientRPC(trueDamage, destination.transform.position,
+                        destination.TakeFatalDamageClientRPC(trueValue, destination.transform.position,
                             destination.networkUnitName, source.networkUnitName);
                         if (destination != source)
                         {
-                            source.DealFatalDamageClientRPC(trueDamage, destination.transform.position,
+                            source.DealFatalDamageClientRPC(trueValue, destination.transform.position,
                                 destination.networkUnitName, source.networkUnitName);
                             if (source.type == Type.Hero)
                             {
                                 PlayerProperty sourceProp = source as PlayerProperty;
+                                ++sourceProp.player.stat.networkKillCount;
                                 sourceProp.SetShieldOnServer(PlayerProperty.MAX_SHIELD_LEVEL *
                                                              PlayerProperty.SHIELD_PER_LEVEL);
                                 sourceProp.player.PlayRestoreShieldEffectClientRPC(sourceProp.shieldLevel);
@@ -113,6 +133,48 @@ public class Unit : NetworkBehaviour
                         }
                     }
                 }
+            }
+            else if (damageType == DamageType.HealthOnly)
+            {
+                if (value < prop.health)
+                {
+                    prop.SetHealthOnServer(prop.health - value);
+                    destination.TakeDamageClientRPC(trueValue, destination.transform.position,
+                        destination.networkUnitName, source.networkUnitName);
+                    if (destination != source)
+                    {
+                        source.DealDamageClientRPC(trueValue, destination.transform.position,
+                            destination.networkUnitName, source.networkUnitName);
+                    }
+                }
+                else
+                {
+                    if (source.type == Type.Hero && destination != source)
+                    {
+                        ++(source as PlayerProperty).player.stat.networkKillCount;
+                    }
+
+                    prop.SetHealthOnServer(0f);
+                    prop.DieOnServer();
+                    destination.TakeFatalDamageClientRPC(trueValue, destination.transform.position,
+                        destination.networkUnitName, source.networkUnitName);
+                    if (destination != source)
+                    {
+                        source.DealFatalDamageClientRPC(trueValue, destination.transform.position,
+                            destination.networkUnitName, source.networkUnitName);
+                        if (source.type == Type.Hero)
+                        {
+                            PlayerProperty sourceProp = source as PlayerProperty;
+                            sourceProp.SetShieldOnServer(PlayerProperty.MAX_SHIELD_LEVEL *
+                                                         PlayerProperty.SHIELD_PER_LEVEL);
+                            sourceProp.player.PlayRestoreShieldEffectClientRPC(sourceProp.shieldLevel);
+                        }
+                    }
+                }
+            }
+            else if (damageType == DamageType.ShieldOnly)
+            {
+                // TODO
             }
         }
 
@@ -132,9 +194,9 @@ public class Unit : NetworkBehaviour
 
 
     [ServerCallback]
-    public void DealDamageOnServer(Unit destination, float value)
+    public void DealDamageOnServer(Unit destination, float value, DamageType damageType)
     {
-        HandleDamageOnServer(this, destination, value);
+        HandleDamageOnServer(this, destination, value, damageType);
     }
 
 
@@ -147,6 +209,10 @@ public class Unit : NetworkBehaviour
 
     public virtual void Die()
     {
+        if (type == Type.Hero)
+        {
+            PopupManager.Instance.SetAlivePlayerCount(PlayerIdentity.GetAlivePlayerCount());
+        }
     }
 
 
@@ -158,17 +224,31 @@ public class Unit : NetworkBehaviour
             return;
         }
 
-        if (type == Type.Hero)
+        if (type == Type.Hero && PlayerIdentity.GetAlivePlayerCount() <= 1)
         {
-            PlayerProperty prop = this as PlayerProperty;
-            if (PlayerIdentity.InstanceList.Count(identity =>
-                    identity.player != null && !identity.player.prop.networkIsDead) <= 1)
-            {
-                return;
-            }
+            return;
         }
 
         networkIsDead = true;
+        if (type == Type.Hero)
+        {
+            PlayerProperty prop = this as PlayerProperty;
+            int count = PlayerIdentity.GetAlivePlayerCount();
+            prop.player.stat.networkRank = count;
+            PopupManager.Instance.SetAlivePlayerCount(count);
+            if (count <= 1)
+            {
+                PlayerIdentity.Local.player.HandlePlayerStatisticsOnServerOwner();
+                StartCoroutine(ResetGameOnServerAsync());
+            }
+        }
+    }
+
+
+    private IEnumerator ResetGameOnServerAsync()
+    {
+        yield return new WaitForSeconds(3f);
+        GameManager.ResetGameOnServer();
     }
 
 
@@ -180,9 +260,9 @@ public class Unit : NetworkBehaviour
 
 
     [ServerCallback]
-    public void TakeDamageOnServer(Unit source, float value)
+    public void TakeDamageOnServer(Unit source, float value, DamageType damageType)
     {
-        HandleDamageOnServer(source, this, value);
+        HandleDamageOnServer(source, this, value, damageType);
     }
 
 

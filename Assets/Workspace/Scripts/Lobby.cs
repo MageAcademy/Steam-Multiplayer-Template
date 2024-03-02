@@ -115,7 +115,6 @@ public class Lobby : MonoBehaviour
             yield return null;
         }
 
-        Bomb.InstanceMap.Clear();
         PlayerIdentity.Local.SpawnPlayerServerRPC();
     }
 }

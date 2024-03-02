@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static float GameTime = 300f;
+    
     public static bool InGame = false;
+
+    public static Vector2Int MapSize = new Vector2Int(20, 20);
 
 
     private void Awake()
