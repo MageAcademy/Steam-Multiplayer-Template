@@ -36,7 +36,7 @@ public class SafeZone : Unit
     [ServerCallback]
     private void DealDamageOnServer()
     {
-        if (currentTime < count)
+        if (!GameManager.InGame || currentTime < count)
         {
             return;
         }
@@ -44,7 +44,7 @@ public class SafeZone : Unit
         ++count;
         foreach (PlayerIdentity identity in PlayerIdentity.InstanceList)
         {
-            if (identity == null || identity.player == null)
+            if (identity == null || identity.player == null || identity.player.prop.networkIsDead)
             {
                 continue;
             }

@@ -116,19 +116,22 @@ public class Unit : NetworkBehaviour
 
                         prop.SetHealthOnServer(0f);
                         prop.DieOnServer();
-                        destination.TakeFatalDamageClientRPC(trueValue, destination.transform.position,
-                            destination.networkUnitName, source.networkUnitName);
-                        if (destination != source)
+                        if (destination.networkIsDead)
                         {
-                            source.DealFatalDamageClientRPC(trueValue, destination.transform.position,
+                            destination.TakeFatalDamageClientRPC(trueValue, destination.transform.position,
                                 destination.networkUnitName, source.networkUnitName);
-                            if (source.type == Type.Hero)
+                            if (destination != source)
                             {
-                                PlayerProperty sourceProp = source as PlayerProperty;
-                                ++sourceProp.player.stat.networkKillCount;
-                                sourceProp.SetShieldOnServer(PlayerProperty.MAX_SHIELD_LEVEL *
-                                                             PlayerProperty.SHIELD_PER_LEVEL);
-                                sourceProp.player.PlayRestoreShieldEffectClientRPC(sourceProp.shieldLevel);
+                                source.DealFatalDamageClientRPC(trueValue, destination.transform.position,
+                                    destination.networkUnitName, source.networkUnitName);
+                                if (source.type == Type.Hero)
+                                {
+                                    PlayerProperty sourceProp = source as PlayerProperty;
+                                    ++sourceProp.player.stat.networkKillCount;
+                                    sourceProp.SetShieldOnServer(PlayerProperty.MAX_SHIELD_LEVEL *
+                                                                 PlayerProperty.SHIELD_PER_LEVEL);
+                                    sourceProp.player.PlayRestoreShieldEffectClientRPC(sourceProp.shieldLevel);
+                                }
                             }
                         }
                     }
@@ -156,18 +159,21 @@ public class Unit : NetworkBehaviour
 
                     prop.SetHealthOnServer(0f);
                     prop.DieOnServer();
-                    destination.TakeFatalDamageClientRPC(trueValue, destination.transform.position,
-                        destination.networkUnitName, source.networkUnitName);
-                    if (destination != source)
+                    if (destination.networkIsDead)
                     {
-                        source.DealFatalDamageClientRPC(trueValue, destination.transform.position,
+                        destination.TakeFatalDamageClientRPC(trueValue, destination.transform.position,
                             destination.networkUnitName, source.networkUnitName);
-                        if (source.type == Type.Hero)
+                        if (destination != source)
                         {
-                            PlayerProperty sourceProp = source as PlayerProperty;
-                            sourceProp.SetShieldOnServer(PlayerProperty.MAX_SHIELD_LEVEL *
-                                                         PlayerProperty.SHIELD_PER_LEVEL);
-                            sourceProp.player.PlayRestoreShieldEffectClientRPC(sourceProp.shieldLevel);
+                            source.DealFatalDamageClientRPC(trueValue, destination.transform.position,
+                                destination.networkUnitName, source.networkUnitName);
+                            if (source.type == Type.Hero)
+                            {
+                                PlayerProperty sourceProp = source as PlayerProperty;
+                                sourceProp.SetShieldOnServer(PlayerProperty.MAX_SHIELD_LEVEL *
+                                                             PlayerProperty.SHIELD_PER_LEVEL);
+                                sourceProp.player.PlayRestoreShieldEffectClientRPC(sourceProp.shieldLevel);
+                            }
                         }
                     }
                 }
