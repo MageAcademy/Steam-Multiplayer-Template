@@ -127,7 +127,6 @@ public class Unit : NetworkBehaviour
                                 if (source.type == Type.Hero)
                                 {
                                     PlayerProperty sourceProp = source as PlayerProperty;
-                                    ++sourceProp.player.stat.networkKillCount;
                                     sourceProp.SetShieldOnServer(PlayerProperty.MAX_SHIELD_LEVEL *
                                                                  PlayerProperty.SHIELD_PER_LEVEL);
                                     sourceProp.player.PlayRestoreShieldEffectClientRPC(sourceProp.shieldLevel);

@@ -33,7 +33,7 @@ public class LootEntry : NetworkBehaviour
     }
 
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (!isServer || LayerMask.LayerToName(other.gameObject.layer) != "Player")
         {
