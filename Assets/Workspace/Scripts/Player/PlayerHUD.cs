@@ -68,7 +68,7 @@ public class PlayerHud : MonoBehaviour
     public void ApplyHealth(float value)
     {
         imageHealthForeground.transform.localScale = new Vector3(value / PlayerProperty.MAX_HEALTH, 1f, 1f);
-        imageLowHealth.SetActive(value < 200f && value > 0f);
+        imageLowHealth.SetActive(value <= 150f && value > 0f);
         if (value < targetHealthBackground)
         {
             healthBackgroundCooldown = 0.2f;

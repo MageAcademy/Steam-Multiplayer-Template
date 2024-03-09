@@ -223,9 +223,10 @@ public class Player : NetworkBehaviour
         for (int a = 0; a < coordinates.Length; ++a)
         {
             coordinates[a] = Bomb.InfoList[a].coordinate;
-            if (MapManager.Instance.GetCell(coordinates[a].x, coordinates[a].y) == MapManager.Type.BlockDestructible)
+            if (MapManager.Instance.GetCell(coordinates[a]) == MapManager.Type.BlockDestructible)
             {
-                LootEntry entry = LootManager.Instance.GetRandomInstance();
+                Block block = MapManager.Instance.GetBlock(coordinates[a]);
+                LootEntry entry = LootManager.Instance.GetRandomInstance(block.lootID);
                 if (entry != null)
                 {
                     entry.transform.position = MapManager.Instance.GetPositionByCoordinate(coordinates[a]);
@@ -348,7 +349,7 @@ public class Player : NetworkBehaviour
         }
 
         HandlePlayerStatisticsClientRPC(
-            JsonConvert.SerializeObject(dataList.OrderBy(data => data.rank.value).ToList(),Formatting.Indented));
+            JsonConvert.SerializeObject(dataList.OrderBy(data => data.rank.value).ToList(), Formatting.Indented));
     }
 
     #endregion METHOD ON SERVER OWNER

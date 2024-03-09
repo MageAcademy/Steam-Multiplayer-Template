@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Mirror;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -29,6 +30,8 @@ public class LootManager : MonoBehaviour
 
     private RandomManager.IntType[] probabilities = null;
 
+    private RandomManager.IntType[] probabilities_HighQuality = null;
+
 
     private void Awake()
     {
@@ -47,6 +50,11 @@ public class LootManager : MonoBehaviour
         if (id == -1)
         {
             id = RandomManager.Get(probabilities).value;
+        }
+
+        if (id == -2)
+        {
+            id = RandomManager.Get(probabilities_HighQuality).value;
         }
 
         if (id < 2)
@@ -70,5 +78,16 @@ public class LootManager : MonoBehaviour
         {
             probabilities[a] = new RandomManager.IntType { value = data[a].id, weight = data[a].weight };
         }
+
+        List<RandomManager.IntType> list = new List<RandomManager.IntType>();
+        for (int a = 0; a < data.Length; ++a)
+        {
+            if (data[a].quality > 1)
+            {
+                list.Add(new RandomManager.IntType { value = data[a].id, weight = data[a].weight });
+            }
+        }
+
+        probabilities_HighQuality = list.ToArray();
     }
 }

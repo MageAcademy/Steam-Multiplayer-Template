@@ -7,6 +7,8 @@ public class MapManager : MonoBehaviour
 {
     public class Cell
     {
+        public int blockIndex = 0;
+
         public Type type = Type.Null;
 
         public int x = -1;
@@ -52,7 +54,7 @@ public class MapManager : MonoBehaviour
 
     public Transform parentGrids = null;
 
-    public Block prefabBlock = null;
+    public Block[] prefabsBlock = null;
 
     public GameObject prefabCube = null;
 
@@ -124,12 +126,11 @@ public class MapManager : MonoBehaviour
     }
 
 
-    private void CreateBlock(int x, int y, bool isDestructible)
+    private void CreateBlock(int x, int y, int blockIndex)
     {
-        Block block = Instantiate(prefabBlock, parentEnvironment);
+        Block block = Instantiate(prefabsBlock[blockIndex], parentEnvironment);
         block.coordinate = new Vector2Int(x, y);
-        block.isDestructible = isDestructible;
-        block.Initialize();
+        block.transform.position = GetPositionOnFloor(x, y);
         blocks[x, y] = block;
     }
 
@@ -168,6 +169,7 @@ public class MapManager : MonoBehaviour
     public void GenerateOnClient(string json)
     {
         GameManager.InGame = true;
+        PopupManager.Instance.HideStatisticsPanel();
         SafeZone.Instance.Show();
         AudioSource audioSource =
             AudioManager.Instance.Play("背景音乐", AudioManager.Instance.audioListener.transform);
@@ -208,14 +210,15 @@ public class MapManager : MonoBehaviour
         {
             for (int y = 0; y < data.height; ++y)
             {
-                switch (data.cells[x, y].type)
+                Cell cell = data.cells[x, y];
+                switch (cell.type)
                 {
                     case Type.BlockDestructible:
-                        CreateBlock(x, y, true);
+                        CreateBlock(x, y, cell.blockIndex);
                         CreateGrid(x, y);
                         break;
                     case Type.BlockIndestructible:
-                        CreateBlock(x, y, false);
+                        CreateBlock(x, y, cell.blockIndex);
                         break;
                     case Type.EmptyInside:
                         CreateGrid(x, y);
@@ -239,20 +242,35 @@ public class MapManager : MonoBehaviour
         data.safeZoneStartScale = (Mathf.Max(height, width) + 4f) * cellSize * Mathf.Sqrt(2f);
         RandomManager.IntType[] probabilities =
         {
-            new RandomManager.IntType { value = 1, weight = 2f },
-            new RandomManager.IntType { value = 2, weight = 1f },
-            new RandomManager.IntType { value = 3, weight = 4f },
+            new RandomManager.IntType { value = 0, weight = 90f },
+            new RandomManager.IntType { value = 1, weight = 5f },
+            new RandomManager.IntType { value = 2, weight = 5f },
+            new RandomManager.IntType { value = 3, weight = 100f },
+            new RandomManager.IntType { value = 4, weight = 200f }
         };
         for (int x = 0; x < width; ++x)
         {
             for (int y = 0; y < height; ++y)
             {
+                int randomValue = RandomManager.Get(probabilities).value;
                 data.cells[x, y] = new Cell
                 {
-                    type = (Type)RandomManager.Get(probabilities).value,
+                    blockIndex = randomValue,
                     x = x,
                     y = y
                 };
+                if (randomValue < 3)
+                {
+                    data.cells[x, y].type = Type.BlockDestructible;
+                }
+                else if (randomValue < 4)
+                {
+                    data.cells[x, y].type = Type.BlockIndestructible;
+                }
+                else if (randomValue == 4)
+                {
+                    data.cells[x, y].type = Type.EmptyInside;
+                }
             }
         }
 
@@ -276,6 +294,18 @@ public class MapManager : MonoBehaviour
         }
 
         return JsonConvert.SerializeObject(data, Formatting.None, new ConverterVector3());
+    }
+
+
+    public Block GetBlock(int x, int y)
+    {
+        return blocks[x, y];
+    }
+
+
+    public Block GetBlock(Vector2Int coordinate)
+    {
+        return GetBlock(coordinate.x, coordinate.y);
     }
 
 

@@ -645,7 +645,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &204018126
 GameObject:
   m_ObjectHideFlags: 0
@@ -2049,6 +2049,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   fontHanyiwenhei: {fileID: 11400000, guid: c041c196133ab444d8446c3dfef0b23a, type: 2}
   fontPingfang: {fileID: 11400000, guid: c41e69509e95df540bf0516d60ee6a23, type: 2}
+  menu: {fileID: 204013768}
   panelStatisticsHud: {fileID: 2114019190}
   parentKnockDownGlobal: {fileID: 428249356}
   parentKnockDownLocal: {fileID: 835856219}
@@ -3147,7 +3148,11 @@ MonoBehaviour:
     m_Bits: 128
   parentEnvironment: {fileID: 32944749}
   parentGrids: {fileID: 996981056}
-  prefabBlock: {fileID: 1018099140258382866, guid: 512bb6152e9bffc4eb9924ad8fbf4154, type: 3}
+  prefabsBlock:
+  - {fileID: -5651427962863291736, guid: 473e56a39c8c7f14186110fbed4af639, type: 3}
+  - {fileID: 136929494952481625, guid: 9b841d90a37e77e4bb67a756d146be3f, type: 3}
+  - {fileID: 1984936031649602212, guid: 8d53f3243d824194c8baf438a4b6b20a, type: 3}
+  - {fileID: 3006744787312671379, guid: e3d9601963890fa4f9354f6a8904a75c, type: 3}
   prefabCube: {fileID: 3008872494993849339, guid: 8408fea134d51c642a0956ef05cc4aaf, type: 3}
   prefabEnvironment: {fileID: 6586816630551252363, guid: a680635564cd0784c9c14c96e07f27b5, type: 3}
   prefabImage: {fileID: 8589387270614056711, guid: 63294d9e8148e7049abbc2a56e6a7b11, type: 3}
@@ -4247,9 +4252,9 @@ Transform:
   - {fileID: 803160819}
   - {fileID: 1069962221}
   - {fileID: 365947411}
+  - {fileID: 643490261}
   - {fileID: 369105307}
   - {fileID: 975792564}
-  - {fileID: 643490261}
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
