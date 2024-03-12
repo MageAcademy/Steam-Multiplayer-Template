@@ -1668,7 +1668,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   networkIsDead: 0
-  type: 3
+  type: 4
   networkUnitName: "\u5B89\u5168\u533A"
   curve:
     serializedVersion: 2
@@ -3149,10 +3149,9 @@ MonoBehaviour:
   parentEnvironment: {fileID: 32944749}
   parentGrids: {fileID: 996981056}
   prefabsBlock:
-  - {fileID: -5651427962863291736, guid: 473e56a39c8c7f14186110fbed4af639, type: 3}
-  - {fileID: 136929494952481625, guid: 9b841d90a37e77e4bb67a756d146be3f, type: 3}
-  - {fileID: 1984936031649602212, guid: 8d53f3243d824194c8baf438a4b6b20a, type: 3}
-  - {fileID: 3006744787312671379, guid: e3d9601963890fa4f9354f6a8904a75c, type: 3}
+  - {fileID: 7396137022167426569, guid: b91b4ac363c207541a60428c8dd8b196, type: 3}
+  - {fileID: 3739833149835532946, guid: ec75baa072e3b214bb299c712887d8d4, type: 3}
+  - {fileID: 4412100213774522137, guid: b6a14bca5e4e9c045ba25885ed660370, type: 3}
   prefabCube: {fileID: 3008872494993849339, guid: 8408fea134d51c642a0956ef05cc4aaf, type: 3}
   prefabEnvironment: {fileID: 6586816630551252363, guid: a680635564cd0784c9c14c96e07f27b5, type: 3}
   prefabImage: {fileID: 8589387270614056711, guid: 63294d9e8148e7049abbc2a56e6a7b11, type: 3}

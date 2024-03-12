@@ -215,7 +215,7 @@ public class Player : NetworkBehaviour
             Bomb.Info info = Bomb.InfoList.Find(info => info.coordinate == prop.player.playerMove.networkCoordinate);
             if (info != null)
             {
-                prop.TakeDamageOnServer(info.damageSource.prop, Bomb.DAMAGE, Unit.DamageType.Null);
+                prop.TakeDamageOnServer(info.damageSource.prop, Bomb.DAMAGE, Unit.DamageType.Default);
             }
         }
 

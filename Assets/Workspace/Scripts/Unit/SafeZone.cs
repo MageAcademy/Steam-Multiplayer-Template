@@ -51,7 +51,7 @@ public class SafeZone : Unit
 
             Vector3 playerPosition = identity.player.transform.position;
             playerPosition.y = 0f;
-            if (Vector3.Distance(playerPosition, currentCenter) > currentScale / 2f)
+            if (currentScale < 0.5f || Vector3.Distance(playerPosition, currentCenter) > currentScale / 2f)
             {
                 DealDamageOnServer(identity.player.prop, currentDamage, DamageType.HealthOnly);
             }

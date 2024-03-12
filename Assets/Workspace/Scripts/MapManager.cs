@@ -243,10 +243,9 @@ public class MapManager : MonoBehaviour
         RandomManager.IntType[] probabilities =
         {
             new RandomManager.IntType { value = 0, weight = 90f },
-            new RandomManager.IntType { value = 1, weight = 5f },
-            new RandomManager.IntType { value = 2, weight = 5f },
-            new RandomManager.IntType { value = 3, weight = 100f },
-            new RandomManager.IntType { value = 4, weight = 200f }
+            new RandomManager.IntType { value = 1, weight = 10f },
+            new RandomManager.IntType { value = 2, weight = 100f },
+            new RandomManager.IntType { value = 3, weight = 200f }
         };
         for (int x = 0; x < width; ++x)
         {
@@ -259,15 +258,15 @@ public class MapManager : MonoBehaviour
                     x = x,
                     y = y
                 };
-                if (randomValue < 3)
+                if (randomValue < 2)
                 {
                     data.cells[x, y].type = Type.BlockDestructible;
                 }
-                else if (randomValue < 4)
+                else if (randomValue < 3)
                 {
                     data.cells[x, y].type = Type.BlockIndestructible;
                 }
-                else if (randomValue == 4)
+                else if (randomValue == 3)
                 {
                     data.cells[x, y].type = Type.EmptyInside;
                 }

@@ -135,7 +135,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   networkIsDead: 0
-  type: 0
+  type: 2
+  networkUnitName: 
   coordinate: {x: 0, y: 0}
   damageSource: {fileID: 0}
   layerPlayer:

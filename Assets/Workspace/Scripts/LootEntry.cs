@@ -5,7 +5,7 @@ using UnityEngine;
 public class LootEntry : NetworkBehaviour
 {
     public static List<LootEntry> InstanceList = new List<LootEntry>();
-    
+
     public GameObject beamOrange = null;
 
     public GameObject beamRed = null;
@@ -122,7 +122,7 @@ public class LootEntry : NetworkBehaviour
                 if (prop.health < PlayerProperty.MAX_HEALTH)
                 {
                     flag = true;
-                    prop.SetHealthOnServer(prop.health + 250f);
+                    prop.TakeDamageOnServer(prop, -250f, Unit.DamageType.HealthOnly);
                 }
 
                 break;
@@ -130,7 +130,7 @@ public class LootEntry : NetworkBehaviour
                 if (prop.health < PlayerProperty.MAX_HEALTH)
                 {
                     flag = true;
-                    prop.SetHealthOnServer(prop.health + 500f);
+                    prop.TakeDamageOnServer(prop, -500f, Unit.DamageType.HealthOnly);
                 }
 
                 break;
@@ -138,7 +138,7 @@ public class LootEntry : NetworkBehaviour
                 if (prop.shield < prop.shieldLevel * PlayerProperty.SHIELD_PER_LEVEL)
                 {
                     flag = true;
-                    prop.SetShieldOnServer(prop.shield + 250f);
+                    prop.TakeDamageOnServer(prop, -250f, Unit.DamageType.ShieldOnly);
                 }
 
                 break;
@@ -146,7 +146,7 @@ public class LootEntry : NetworkBehaviour
                 if (prop.shield < prop.shieldLevel * PlayerProperty.SHIELD_PER_LEVEL)
                 {
                     flag = true;
-                    prop.SetShieldOnServer(prop.shield + 500f);
+                    prop.TakeDamageOnServer(prop, -500f, Unit.DamageType.ShieldOnly);
                 }
 
                 break;

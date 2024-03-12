@@ -137,30 +137,36 @@ public class PopupManager : MonoBehaviour
             return;
         }
 
-        if (isDestination)
+        if (value > 0)
         {
-            tweenerTakeDamageEffect?.Kill();
-            tweenerTakeDamageEffect = DOTween.To(value => { vignette.intensity.value = value; }, 0.6f, 0f, 0.6f)
-                .SetEase(Ease.InOutSine);
+            AudioManager.Instance.Play("玩家击中", null, position);
+            if (isDestination)
+            {
+                tweenerTakeDamageEffect?.Kill();
+                tweenerTakeDamageEffect = DOTween.To(value => { vignette.intensity.value = value; }, 0.6f, 0f, 0.6f)
+                    .SetEase(Ease.InOutSine);
+            }
         }
 
-        AudioManager.Instance.Play("玩家击中", null, position);
-        PopupHud hud = Instantiate(prefabPopupHud, parentPopupHud);
-        hud.image.color = Color.clear;
-        hud.needFollow = true;
-        hud.position = position + new Vector3(0f, 0.6f, 0f);
-        hud.text.color = new Color(1f, 0.1f, 0.1f, 1f);
-        hud.text.font = fontHanyiwenhei;
-        hud.text.fontSize = 40f;
-        hud.text.text = Mathf.RoundToInt(value).ToString();
-        hud.imageRect.sizeDelta = hud.text.GetPreferredValues();
-        hud.tweener = DOTween.To(value =>
+        if (value != 0f)
         {
-            hud.canvasGroup.alpha = curveTakeDamageAlpha.Evaluate(value);
-            float scale = curveTakeDamageScale.Evaluate(value);
-            hud.textRect.localScale = new Vector3(scale, scale, 1f);
-        }, 0f, 1f, 2f).SetEase(Ease.Linear);
-        hud.tweener.onComplete = () => { Destroy(hud.gameObject); };
+            PopupHud hud = Instantiate(prefabPopupHud, parentPopupHud);
+            hud.image.color = Color.clear;
+            hud.needFollow = true;
+            hud.position = position + new Vector3(0f, 0.6f, 0f);
+            hud.text.color = value < 0 ? new Color(0.1f, 1f, 0.1f, 1f) : new Color(1f, 0.1f, 0.1f, 1f);
+            hud.text.font = fontHanyiwenhei;
+            hud.text.fontSize = 40f;
+            hud.text.text = Mathf.RoundToInt(Mathf.Abs(value)).ToString();
+            hud.imageRect.sizeDelta = hud.text.GetPreferredValues();
+            hud.tweener = DOTween.To(value =>
+            {
+                hud.canvasGroup.alpha = curveTakeDamageAlpha.Evaluate(value);
+                float scale = curveTakeDamageScale.Evaluate(value);
+                hud.textRect.localScale = new Vector3(scale, scale, 1f);
+            }, 0f, 1f, 2f).SetEase(Ease.Linear);
+            hud.tweener.onComplete = () => { Destroy(hud.gameObject); };
+        }
     }
 
 
@@ -192,22 +198,25 @@ public class PopupManager : MonoBehaviour
             hud2.tweener.onComplete = () => { Destroy(hud2.gameObject); };
         }
 
-        PopupHud hud3 = Instantiate(prefabPopupHud, parentPopupHud);
-        hud3.image.color = Color.clear;
-        hud3.needFollow = true;
-        hud3.position = position + new Vector3(0f, 0.6f, 0f);
-        hud3.text.color = new Color(1f, 0f, 0f, 1f);
-        hud3.text.font = fontHanyiwenhei;
-        hud3.text.fontSize = 50f;
-        hud3.text.text = Mathf.RoundToInt(value).ToString();
-        hud3.imageRect.sizeDelta = hud3.text.GetPreferredValues();
-        hud3.tweener = DOTween.To(value =>
+        if (value != 0f)
         {
-            hud3.canvasGroup.alpha = curveTakeDamageAlpha.Evaluate(value);
-            float scale = curveTakeDamageScale.Evaluate(value);
-            hud3.textRect.localScale = new Vector3(scale, scale, 1f);
-        }, 0f, 1f, 2f).SetEase(Ease.Linear);
-        hud3.tweener.onComplete = () => { Destroy(hud3.gameObject); };
+            PopupHud hud3 = Instantiate(prefabPopupHud, parentPopupHud);
+            hud3.image.color = Color.clear;
+            hud3.needFollow = true;
+            hud3.position = position + new Vector3(0f, 0.6f, 0f);
+            hud3.text.color = new Color(1f, 0f, 0f, 1f);
+            hud3.text.font = fontHanyiwenhei;
+            hud3.text.fontSize = 50f;
+            hud3.text.text = Mathf.RoundToInt(value).ToString();
+            hud3.imageRect.sizeDelta = hud3.text.GetPreferredValues();
+            hud3.tweener = DOTween.To(value =>
+            {
+                hud3.canvasGroup.alpha = curveTakeDamageAlpha.Evaluate(value);
+                float scale = curveTakeDamageScale.Evaluate(value);
+                hud3.textRect.localScale = new Vector3(scale, scale, 1f);
+            }, 0f, 1f, 2f).SetEase(Ease.Linear);
+            hud3.tweener.onComplete = () => { Destroy(hud3.gameObject); };
+        }
     }
 
 

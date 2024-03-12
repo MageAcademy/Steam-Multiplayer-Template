@@ -80,7 +80,7 @@ public class PlayerIdentity : NetworkBehaviour
         {
             Local.SpawnPlayerServerRPC();
         }
-        
+
         MapManager.Instance.ClearOnClient();
         PopupManager.Instance.Reset();
     }
@@ -89,6 +89,7 @@ public class PlayerIdentity : NetworkBehaviour
     [ServerCallback]
     public void ResetGameOnServerOwner()
     {
+        PlayerProperty.BuffID = 0;
         foreach (Bomb bomb in Bomb.InstanceMap.Values)
         {
             NetworkServer.UnSpawn(bomb.gameObject);

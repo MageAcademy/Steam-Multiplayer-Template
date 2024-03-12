@@ -13,15 +13,23 @@ public class PlayerProperty : Unit
         Null
     }
 
-    public class Buff
+    public class Buff : IDescribable
     {
         public float duration = 0f;
+
+        public int id = 0;
 
         public float remainingTime = 0f;
 
         public BuffType type = BuffType.Null;
 
         public object value = null;
+
+
+        public string GetDescription()
+        {
+            return "123";
+        }
     }
 
     public const int MAX_BOMB_COUNT = 5;
@@ -43,6 +51,8 @@ public class PlayerProperty : Unit
     public const int MIN_SHIELD_LEVEL = 2;
 
     public const float SHIELD_PER_LEVEL = 250f;
+
+    public static int BuffID = 0;
 
     [SyncVar(hook = nameof(OnRemainingBombCountChange))]
     public int remainingBombCount = MIN_BOMB_COUNT;
@@ -72,7 +82,7 @@ public class PlayerProperty : Unit
 
     private void Update()
     {
-        CountdownBuffListOnServer();
+        CountdownBuffList();
     }
 
 
@@ -106,27 +116,50 @@ public class PlayerProperty : Unit
     }
 
 
-    [ServerCallback]
-    public void AddBuffOnServer(BuffType buffType, object value, float duration)
+    [ClientRpc]
+    private void AddBuffClientRPC(int buffID, BuffType buffType, object value, float duration)
     {
-        buffList.Add(new Buff { duration = duration, remainingTime = duration, type = buffType, value = value });
-        RefreshBuffListOnServer(buffType);
+        if (!isServer)
+        {
+            Buff buff = new Buff
+                { duration = duration, id = buffID, remainingTime = duration, type = buffType, value = value };
+            buffList.Add(buff);
+            if (hasAuthority)
+            {
+                // show buff icon
+            }
+        }
     }
 
 
     [ServerCallback]
-    private void CountdownBuffListOnServer()
+    public void AddBuffOnServer(BuffType buffType, object value, float duration)
     {
-        List<Buff> oldBuffList = new List<Buff>();
+        ++BuffID;
+        Buff buff = new Buff
+            { duration = duration, id = BuffID, remainingTime = duration, type = buffType, value = value };
+        buffList.Add(buff);
+        RefreshBuffListOnServer(buffType);
+        if (hasAuthority)
+        {
+            // show buff icon
+        }
+    }
+
+
+    private void CountdownBuffList()
+    {
         foreach (Buff buff in buffList)
         {
             buff.remainingTime -= Time.deltaTime;
-            if (buff.remainingTime <= 0f)
-            {
-                oldBuffList.Add(buff);
-            }
         }
 
+        if (!isServer)
+        {
+            return;
+        }
+
+        List<Buff> oldBuffList = buffList.FindAll(buff => buff.remainingTime <= 0f);
         foreach (Buff oldBuff in oldBuffList)
         {
             RemoveBuffOnServer(oldBuff);

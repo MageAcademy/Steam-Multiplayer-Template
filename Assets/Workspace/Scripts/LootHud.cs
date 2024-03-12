@@ -1,9 +1,12 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LootHud : MonoBehaviour
 {
     public RectTransform background = null;
+
+    public Image image = null;
 
     public TextMeshProUGUI text = null;
 
@@ -46,7 +49,19 @@ public class LootHud : MonoBehaviour
     {
         this.entry = entry;
         LootManager.Data data = entry.data;
-        text.color = LootManager.Instance.colorQuality[data.quality];
+        if (data.quality < 3)
+        {
+            image.color = new Color(0f, 0f, 0f, 0.6f);
+            text.color = LootManager.Instance.colorQuality[data.quality];
+        }
+        else
+        {
+            Color color = LootManager.Instance.colorQuality[data.quality];
+            color.a = 0.6f;
+            image.color = color;
+            text.color = Color.white;
+        }
+
         text.text = data.name;
         background.sizeDelta = new Vector2(text.preferredWidth + 40f, text.preferredHeight + 10f);
     }
