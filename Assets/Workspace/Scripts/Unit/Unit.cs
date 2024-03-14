@@ -81,11 +81,14 @@ public class Unit : NetworkBehaviour
             if (pureValue < 0)
             {
                 trueValue = Mathf.Max(pureValue, totalValue);
+                if (source.type == Type.Hero)
+                {
+                    (source as PlayerProperty).player.stat.networkDealHealing += -trueValue;
+                }
             }
             else
             {
                 trueValue = Mathf.Min(pureValue, totalValue);
-                prop.player.stat.networkTakeDamage += trueValue;
                 if (source.type == Type.Hero && destination != source)
                 {
                     (source as PlayerProperty).player.stat.networkDealDamage += trueValue;

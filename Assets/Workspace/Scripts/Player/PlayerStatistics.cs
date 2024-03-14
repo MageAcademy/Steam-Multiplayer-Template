@@ -23,22 +23,22 @@ public class PlayerStatistics : NetworkBehaviour
     {
         public FloatValue dealDamage = new FloatValue();
 
+        public FloatValue dealHealing = new FloatValue();
+
         public IntValue killCount = new IntValue();
 
         public string name = null;
 
         public IntValue rank = new IntValue();
-
-        public FloatValue takeDamage = new FloatValue();
     }
 
     [SyncVar] public float networkDealDamage = 0f;
 
+    [SyncVar] public float networkDealHealing = 0f;
+
     [SyncVar] public int networkKillCount = 0;
 
     [SyncVar] public int networkRank = 0;
-
-    [SyncVar] public float networkTakeDamage = 0f;
 
     private Player player = null;
 
@@ -48,10 +48,10 @@ public class PlayerStatistics : NetworkBehaviour
         return new Data
         {
             dealDamage = new FloatValue { value = networkDealDamage },
+            dealHealing = new FloatValue { value = networkDealHealing },
             killCount = new IntValue { value = networkKillCount },
             name = player.identity.networkSteamName,
-            rank = new IntValue { value = networkRank + 1 },
-            takeDamage = new FloatValue { value = networkTakeDamage }
+            rank = new IntValue { value = networkRank + 1 }
         };
     }
 

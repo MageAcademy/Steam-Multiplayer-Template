@@ -14,6 +14,8 @@ public class PlayerHudManager : MonoBehaviour
 
     public Camera mainCamera = null;
 
+    public RectTransform mainCanvas = null;
+
     public Transform parentLootHud = null;
 
     public Transform parentPlayerHud = null;
@@ -41,6 +43,14 @@ public class PlayerHudManager : MonoBehaviour
         PlayerHud playerHud = Instantiate(prefabPlayerHud, parentPlayerHud);
         playerHud.Initialize(player);
         return playerHud;
+    }
+
+
+    public static Vector2 GetMousePosition()
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(Instance.mainCanvas, Input.mousePosition, null,
+            out Vector2 mousePosition);
+        return mousePosition;
     }
 
 

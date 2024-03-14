@@ -13,22 +13,20 @@ public class PlayerProperty : Unit
         Null
     }
 
-    public class Buff : IDescribable
+    public class Buff : Describable
     {
-        public float duration = 0f;
+        public GameObject iconHud = null;
 
         public int id = 0;
-
-        public float remainingTime = 0f;
 
         public BuffType type = BuffType.Null;
 
         public object value = null;
 
 
-        public string GetDescription()
+        public override string GetDescription()
         {
-            return "123";
+            return GetBuffDescription(this);
         }
     }
 
@@ -119,15 +117,18 @@ public class PlayerProperty : Unit
     [ClientRpc]
     private void AddBuffClientRPC(int buffID, BuffType buffType, object value, float duration)
     {
-        if (!isServer)
+        if (isServer)
         {
-            Buff buff = new Buff
-                { duration = duration, id = buffID, remainingTime = duration, type = buffType, value = value };
-            buffList.Add(buff);
-            if (hasAuthority)
-            {
-                // show buff icon
-            }
+            return;
+        }
+
+        Buff buff = new Buff
+            { duration = duration, id = buffID, remainingTime = duration, type = buffType, value = value };
+        buffList.Add(buff);
+        if (hasAuthority)
+        {
+            buff.iconHud =
+                IconManager.Instance.GetInstance(buff, "移动速度增益", IconManager.Instance.parentBuffIcons, false);
         }
     }
 
@@ -139,11 +140,14 @@ public class PlayerProperty : Unit
         Buff buff = new Buff
             { duration = duration, id = BuffID, remainingTime = duration, type = buffType, value = value };
         buffList.Add(buff);
-        RefreshBuffListOnServer(buffType);
         if (hasAuthority)
         {
-            // show buff icon
+            buff.iconHud =
+                IconManager.Instance.GetInstance(buff, "移动速度增益", IconManager.Instance.parentBuffIcons, false);
         }
+
+        RefreshBuffListOnServer(buffType);
+        AddBuffClientRPC(BuffID, buffType, value, duration);
     }
 
 
@@ -179,6 +183,65 @@ public class PlayerProperty : Unit
             PlayerPlantBomb.IsEnabled = false;
             PopupManager.Instance.PlayDeathEffect();
         }
+    }
+
+
+    private static string GetBuffDescription(Buff buff)
+    {
+        float floatValue = 0;
+        switch (buff.type)
+        {
+            case BuffType.MoveSpeedAdd:
+                floatValue = (float)buff.value;
+                if (floatValue < 0f)
+                {
+                    return $"移动速度减少<#FF1A1A>{-floatValue:F1}</color>，持续{buff.duration:F1}秒。";
+                }
+                else
+                {
+                    return $"移动速度增加<#1AFF1A>{floatValue:F1}</color>，持续{buff.duration:F1}秒。";
+                }
+            case BuffType.MoveSpeedAdd_SoulJade:
+                floatValue = (float)buff.value;
+                if (floatValue < 0f)
+                {
+                    return $"移动速度减少<#FF1A1A>{-floatValue:F1}</color>，持续{buff.duration:F1}秒。魂玉效果不会叠加。";
+                }
+                else
+                {
+                    return $"移动速度增加<#1AFF1A>{floatValue:F1}</color>，持续{buff.duration:F1}秒。魂玉效果不会叠加。";
+                }
+            case BuffType.MoveSpeedEql:
+                floatValue = (float)buff.value;
+                return $"移动速度变为{floatValue:F1}，持续{buff.duration:F1}秒。";
+            case BuffType.MoveSpeedMul:
+                floatValue = (float)buff.value;
+                if (floatValue < 1f)
+                {
+                    return $"移动速度降低至<#FF1A1A>{floatValue:F1}</color>倍，持续{buff.duration:F1}秒。";
+                }
+                else
+                {
+                    return $"移动速度提升至<#1AFF1A>{floatValue:F1}</color>，持续{buff.duration:F1}秒。";
+                }
+        }
+
+        return "无效果。";
+    }
+
+
+    private static string GetBuffIconName(Buff buff)
+    {
+        switch (buff.type)
+        {
+            case BuffType.MoveSpeedAdd:
+            case BuffType.MoveSpeedAdd_SoulJade:
+            case BuffType.MoveSpeedEql:
+            case BuffType.MoveSpeedMul:
+                return "移动速度增益";
+        }
+
+        return "无";
     }
 
 
@@ -233,11 +296,37 @@ public class PlayerProperty : Unit
     }
 
 
+    [ClientRpc]
+    private void RemoveBuffClientRpc(int buffID)
+    {
+        if (isServer)
+        {
+            return;
+        }
+
+        Buff buff = buffList.Find(buff => buff.id == buffID);
+        if (buff != null)
+        {
+            buffList.Remove(buff);
+            if (hasAuthority && buff.iconHud != null)
+            {
+                Destroy(buff.iconHud);
+            }
+        }
+    }
+
+
     [ServerCallback]
     private void RemoveBuffOnServer(Buff oldBuff)
     {
         buffList.Remove(oldBuff);
+        if (hasAuthority && oldBuff.iconHud != null)
+        {
+            Destroy(oldBuff.iconHud);
+        }
+
         RefreshBuffListOnServer(oldBuff.type);
+        RemoveBuffClientRpc(oldBuff.id);
     }
 
 

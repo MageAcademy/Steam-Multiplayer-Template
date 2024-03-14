@@ -79,10 +79,10 @@ public class PopupManager : MonoBehaviour
         hud.text.text = "击杀数";
         hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
         hud.text.color = Color.white;
-        hud.text.text = "造成伤害";
+        hud.text.text = "伤害量";
         hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
         hud.text.color = Color.white;
-        hud.text.text = "承受伤害";
+        hud.text.text = "治疗量";
         foreach (PlayerStatistics.Data data in dataList)
         {
             hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
@@ -104,10 +104,10 @@ public class PopupManager : MonoBehaviour
                 : LootManager.Instance.colorQuality[0];
             hud.text.text = data.dealDamage.value.ToString("F0");
             hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
-            hud.text.color = data.takeDamage.isHighest
+            hud.text.color = data.dealHealing.isHighest
                 ? LootManager.Instance.colorQuality[3]
                 : LootManager.Instance.colorQuality[0];
-            hud.text.text = data.takeDamage.value.ToString("F0");
+            hud.text.text = data.dealHealing.value.ToString("F0");
         }
     }
 

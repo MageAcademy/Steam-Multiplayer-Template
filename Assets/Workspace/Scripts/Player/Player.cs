@@ -226,7 +226,8 @@ public class Player : NetworkBehaviour
             if (MapManager.Instance.GetCell(coordinates[a]) == MapManager.Type.BlockDestructible)
             {
                 Block block = MapManager.Instance.GetBlock(coordinates[a]);
-                LootEntry entry = LootManager.Instance.GetRandomInstance(block.lootID);
+                //LootEntry entry = LootManager.Instance.GetRandomInstance(block.lootID);
+                LootEntry entry = LootManager.Instance.GetRandomInstance(14);
                 if (entry != null)
                 {
                     entry.transform.position = MapManager.Instance.GetPositionByCoordinate(coordinates[a]);
@@ -260,7 +261,7 @@ public class Player : NetworkBehaviour
             dealDamage = new PlayerStatistics.FloatValue { value = float.MaxValue },
             killCount = new PlayerStatistics.IntValue { value = int.MaxValue },
             rank = new PlayerStatistics.IntValue { value = int.MaxValue },
-            takeDamage = new PlayerStatistics.FloatValue { value = float.MaxValue }
+            dealHealing = new PlayerStatistics.FloatValue { value = float.MaxValue }
         };
         foreach (PlayerStatistics.Data data in dataList)
         {
@@ -294,14 +295,14 @@ public class Player : NetworkBehaviour
                 lowestData.rank.value = data.rank.value;
             }
 
-            if (data.takeDamage.value > highestData.takeDamage.value)
+            if (data.dealHealing.value > highestData.dealHealing.value)
             {
-                highestData.takeDamage.value = data.takeDamage.value;
+                highestData.dealHealing.value = data.dealHealing.value;
             }
 
-            if (data.takeDamage.value < lowestData.takeDamage.value)
+            if (data.dealHealing.value < lowestData.dealHealing.value)
             {
-                lowestData.takeDamage.value = data.takeDamage.value;
+                lowestData.dealHealing.value = data.dealHealing.value;
             }
         }
 
@@ -337,14 +338,14 @@ public class Player : NetworkBehaviour
                 data.rank.isLowest = true;
             }
 
-            if (data.takeDamage.value == highestData.takeDamage.value)
+            if (data.dealHealing.value == highestData.dealHealing.value)
             {
-                data.takeDamage.isHighest = true;
+                data.dealHealing.isHighest = true;
             }
 
-            if (data.takeDamage.value == lowestData.takeDamage.value)
+            if (data.dealHealing.value == lowestData.dealHealing.value)
             {
-                data.takeDamage.isLowest = true;
+                data.dealHealing.isLowest = true;
             }
         }
 

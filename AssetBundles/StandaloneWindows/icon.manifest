@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+CRC: 3784906358
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: f6038c2df976e3a4003e9f074ae388c4
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 22ef4abe44ba047dd212e1033b95c779
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Workspace/Textures/phantom_assassin_stifling_dagger.png
+- Assets/Workspace/Textures/phantom_assassin_blur.png
+- Assets/Workspace/Textures/Icon.png
+- Assets/Workspace/Textures/windrunner_windrun_desaturated.png
+- Assets/Workspace/Textures/phantom_assassin_phantom_strike.png
+- Assets/Workspace/Textures/phantom_assassin_coup_de_grace.png
+- Assets/Workspace/Textures/phantom_assassin_fan_of_knives.png
+- Assets/Workspace/Textures/windrunner_windrun.png
+Dependencies: []
