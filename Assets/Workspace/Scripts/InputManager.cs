@@ -36,7 +36,7 @@ public class InputManager : MonoBehaviour
             return;
         }
 
-        if (PlayerIdentity.Local != null && PlayerIdentity.Local.player != null)
+        if (PlayerIdentity.Local != null && PlayerIdentity.Local.player != null && PlayerPlantBomb.IsEnabled)
         {
             PlayerIdentity.Local.player.playerPlantBomb.PlantBombServerRPC(1, 2f);
         }

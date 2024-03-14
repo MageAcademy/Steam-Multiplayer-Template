@@ -21,7 +21,7 @@ public class PlayerProperty : Unit
 
         public BuffType type = BuffType.Null;
 
-        public object value = null;
+        public float floatValue = 0f;
 
 
         public override string GetDescription()
@@ -84,6 +84,18 @@ public class PlayerProperty : Unit
     }
 
 
+    private void OnDestroy()
+    {
+        foreach (Buff buff in buffList)
+        {
+            if (buff.iconHud != null)
+            {
+                Destroy(buff.iconHud);
+            }
+        }
+    }
+
+
     private void OnRemainingBombCountChange(int _, int newValue)
     {
         player?.playerHud?.ApplyRemainingBombCount(newValue);
@@ -115,7 +127,7 @@ public class PlayerProperty : Unit
 
 
     [ClientRpc]
-    private void AddBuffClientRPC(int buffID, BuffType buffType, object value, float duration)
+    private void AddBuffClientRPC(int buffID, BuffType buffType, float floatValue, float duration)
     {
         if (isServer)
         {
@@ -123,7 +135,7 @@ public class PlayerProperty : Unit
         }
 
         Buff buff = new Buff
-            { duration = duration, id = buffID, remainingTime = duration, type = buffType, value = value };
+            { duration = duration, id = buffID, remainingTime = duration, type = buffType, floatValue = floatValue };
         buffList.Add(buff);
         if (hasAuthority)
         {
@@ -134,11 +146,11 @@ public class PlayerProperty : Unit
 
 
     [ServerCallback]
-    public void AddBuffOnServer(BuffType buffType, object value, float duration)
+    public void AddBuffOnServer(BuffType buffType, float floatValue, float duration)
     {
         ++BuffID;
         Buff buff = new Buff
-            { duration = duration, id = BuffID, remainingTime = duration, type = buffType, value = value };
+            { duration = duration, id = BuffID, remainingTime = duration, type = buffType, floatValue = floatValue };
         buffList.Add(buff);
         if (hasAuthority)
         {
@@ -147,7 +159,7 @@ public class PlayerProperty : Unit
         }
 
         RefreshBuffListOnServer(buffType);
-        AddBuffClientRPC(BuffID, buffType, value, duration);
+        AddBuffClientRPC(BuffID, buffType, floatValue, duration);
     }
 
 
@@ -188,11 +200,10 @@ public class PlayerProperty : Unit
 
     private static string GetBuffDescription(Buff buff)
     {
-        float floatValue = 0;
+        float floatValue = buff.floatValue;
         switch (buff.type)
         {
             case BuffType.MoveSpeedAdd:
-                floatValue = (float)buff.value;
                 if (floatValue < 0f)
                 {
                     return $"移动速度减少<#FF1A1A>{-floatValue:F1}</color>，持续{buff.duration:F1}秒。";
@@ -202,7 +213,6 @@ public class PlayerProperty : Unit
                     return $"移动速度增加<#1AFF1A>{floatValue:F1}</color>，持续{buff.duration:F1}秒。";
                 }
             case BuffType.MoveSpeedAdd_SoulJade:
-                floatValue = (float)buff.value;
                 if (floatValue < 0f)
                 {
                     return $"移动速度减少<#FF1A1A>{-floatValue:F1}</color>，持续{buff.duration:F1}秒。魂玉效果不会叠加。";
@@ -212,10 +222,8 @@ public class PlayerProperty : Unit
                     return $"移动速度增加<#1AFF1A>{floatValue:F1}</color>，持续{buff.duration:F1}秒。魂玉效果不会叠加。";
                 }
             case BuffType.MoveSpeedEql:
-                floatValue = (float)buff.value;
                 return $"移动速度变为{floatValue:F1}，持续{buff.duration:F1}秒。";
             case BuffType.MoveSpeedMul:
-                floatValue = (float)buff.value;
                 if (floatValue < 1f)
                 {
                     return $"移动速度降低至<#FF1A1A>{floatValue:F1}</color>倍，持续{buff.duration:F1}秒。";
@@ -266,7 +274,7 @@ public class PlayerProperty : Unit
                 float moveSpeedMul = 1f;
                 foreach (Buff buff in buffList.FindAll(buff => buff.type == BuffType.MoveSpeedAdd))
                 {
-                    moveSpeedAdd += (float)buff.value;
+                    moveSpeedAdd += buff.floatValue;
                 }
 
                 if (buffType == BuffType.MoveSpeedAdd_SoulJade)
@@ -274,19 +282,19 @@ public class PlayerProperty : Unit
                     List<Buff> oldBuffList = buffList.FindAll(buff => buff.type == BuffType.MoveSpeedAdd_SoulJade);
                     if (oldBuffList.Count > 0)
                     {
-                        moveSpeedAdd += (float)oldBuffList[^1].value;
+                        moveSpeedAdd += oldBuffList[^1].floatValue;
                     }
                 }
 
                 foreach (Buff buff in buffList.FindAll(buff => buff.type == BuffType.MoveSpeedEql))
                 {
                     hasEqual = true;
-                    moveSpeedEql = Mathf.Min(moveSpeedEql, (float)buff.value);
+                    moveSpeedEql = Mathf.Min(moveSpeedEql, buff.floatValue);
                 }
 
                 foreach (Buff buff in buffList.FindAll(buff => buff.type == BuffType.MoveSpeedMul))
                 {
-                    moveSpeedMul *= (float)buff.value;
+                    moveSpeedMul *= buff.floatValue;
                 }
 
                 moveSpeed = hasEqual ? moveSpeedEql : moveSpeedBase * moveSpeedMul + moveSpeedAdd;

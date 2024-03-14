@@ -20,7 +20,7 @@ public class PlayerPlantBomb : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void PlantBombServerRPC(int count, float duration)
     {
-        if (!IsEnabled || player.prop.remainingBombCount < count)
+        if (player.prop.remainingBombCount < count)
         {
             return;
         }
