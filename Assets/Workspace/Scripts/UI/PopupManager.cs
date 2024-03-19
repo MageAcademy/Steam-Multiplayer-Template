@@ -21,8 +21,6 @@ public class PopupManager : MonoBehaviour
 
     public TMP_FontAsset fontPingfang = null;
 
-    public GameObject menu = null;
-
     public GameObject panelStatisticsHud = null;
 
     public Transform parentKnockDownGlobal = null;
@@ -60,7 +58,6 @@ public class PopupManager : MonoBehaviour
 
     private void Start()
     {
-        menu.SetActive(true);
         volume.profile.TryGetSettings(out colorGrading);
         volume.profile.TryGetSettings(out vignette);
     }

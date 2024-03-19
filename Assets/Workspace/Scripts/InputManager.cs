@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Xamin;
 
 public class InputManager : MonoBehaviour
 {
@@ -47,11 +46,11 @@ public class InputManager : MonoBehaviour
     {
         if (context.started)
         {
-            CircleSelector.Instance.Open();
+            Menu.Instance.Open();
         }
         else if (context.canceled)
         {
-            CircleSelector.Instance.Close();
+            Menu.Instance.Close();
         }
     }
 }
