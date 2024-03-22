@@ -104,7 +104,6 @@ public class Menu : MonoBehaviour
                 angle += 360f;
             }
 
-            print(angle);
             int count = data.Length;
             int index = Mathf.Clamp(Mathf.RoundToInt(angle * count / 360f), 0, count);
             if (index == count)

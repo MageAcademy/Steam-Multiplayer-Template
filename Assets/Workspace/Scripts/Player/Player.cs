@@ -226,8 +226,7 @@ public class Player : NetworkBehaviour
             if (MapManager.Instance.GetCell(coordinates[a]) == MapManager.Type.BlockDestructible)
             {
                 Block block = MapManager.Instance.GetBlock(coordinates[a]);
-                //LootEntry entry = LootManager.Instance.GetRandomInstance(block.lootID);
-                LootEntry entry = LootManager.Instance.GetRandomInstance(14);
+                LootEntry entry = LootManager.Instance.GetRandomInstance(block.lootID);
                 if (entry != null)
                 {
                     entry.transform.position = MapManager.Instance.GetPositionByCoordinate(coordinates[a]);

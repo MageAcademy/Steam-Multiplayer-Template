@@ -53,4 +53,15 @@ public class InputManager : MonoBehaviour
             Menu.Instance.Close();
         }
     }
+
+
+    public void OnReturn(InputAction.CallbackContext context)
+    {
+        if (!context.started)
+        {
+            return;
+        }
+
+        PopupManager.Instance.HideStatisticsPanel();
+    }
 }

@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     {
         DOTween.Init(false, false, LogBehaviour.Verbose);
         InGame = false;
+        Bomb.InfoList.Clear();
+        Bomb.InstanceMap.Clear();
     }
 
 

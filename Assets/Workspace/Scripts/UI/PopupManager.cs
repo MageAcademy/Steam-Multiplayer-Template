@@ -213,6 +213,10 @@ public class PopupManager : MonoBehaviour
                 hud3.textRect.localScale = new Vector3(scale, scale, 1f);
             }, 0f, 1f, 2f).SetEase(Ease.Linear);
             hud3.tweener.onComplete = () => { Destroy(hud3.gameObject); };
+            PrefabManager.PrefabMap["Blood Explosion Effect"].pool.Get(out GameObject element);
+            element.transform.position = position + new Vector3(0f, 0.6f, 0f);
+            PrefabManager.PrefabMap["Blood Grow Effect"].pool.Get(out GameObject element2);
+            element2.transform.position = position;
         }
     }
 
