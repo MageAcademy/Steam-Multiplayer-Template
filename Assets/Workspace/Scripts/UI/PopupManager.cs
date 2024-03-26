@@ -91,17 +91,17 @@ public class PopupManager : MonoBehaviour
                 : LootManager.Instance.colorQuality[0];
             hud.text.text = data.rank.value.ToString();
             hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
-            hud.text.color = data.killCount.isHighest
+            hud.text.color = data.killCount.isHighest && data.killCount.value > 0
                 ? LootManager.Instance.colorQuality[3]
                 : LootManager.Instance.colorQuality[0];
             hud.text.text = data.killCount.value.ToString();
             hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
-            hud.text.color = data.dealDamage.isHighest
+            hud.text.color = data.dealDamage.isHighest && data.dealDamage.value > 0f
                 ? LootManager.Instance.colorQuality[3]
                 : LootManager.Instance.colorQuality[0];
             hud.text.text = data.dealDamage.value.ToString("F0");
             hud = Instantiate(prefabStatisticsHud, parentStatisticsHud);
-            hud.text.color = data.dealHealing.isHighest
+            hud.text.color = data.dealHealing.isHighest && data.dealHealing.value > 0f
                 ? LootManager.Instance.colorQuality[3]
                 : LootManager.Instance.colorQuality[0];
             hud.text.text = data.dealHealing.value.ToString("F0");
@@ -167,10 +167,30 @@ public class PopupManager : MonoBehaviour
     }
 
 
+    public void PlayDeathEffect(Vector3 position)
+    {
+        AudioManager.Instance.Play("玩家击倒", null, position);
+        PrefabManager.PrefabMap["Blood Explosion Effect"].pool.Get(out GameObject element);
+        position.y = 0.6f;
+        element.transform.position = position;
+        PrefabManager.PrefabMap["Blood Grow Effect"].pool.Get(out GameObject element2);
+        position.y = 0f;
+        element2.transform.position = position;
+    }
+
+
+    public void PlayDeathLocalPlayerEffect()
+    {
+        CameraController.Instance.SetTarget(null);
+        tweenerTakeFatalDamageEffect?.Kill();
+        tweenerTakeFatalDamageEffect = DOTween.To(value => { colorGrading.saturation.value = value; }, 0f, -60f, 1.2f)
+            .SetEase(Ease.InOutSine);
+    }
+
+
     public void PlayFatalDamageEffect(float value, Vector3 position, string destinationName, string sourceName,
         bool isDestination, bool isSource)
     {
-        AudioManager.Instance.Play("玩家击倒", null, position);
         if (!isDestination && !isSource)
         {
             return;
@@ -213,20 +233,7 @@ public class PopupManager : MonoBehaviour
                 hud3.textRect.localScale = new Vector3(scale, scale, 1f);
             }, 0f, 1f, 2f).SetEase(Ease.Linear);
             hud3.tweener.onComplete = () => { Destroy(hud3.gameObject); };
-            PrefabManager.PrefabMap["Blood Explosion Effect"].pool.Get(out GameObject element);
-            element.transform.position = position + new Vector3(0f, 0.6f, 0f);
-            PrefabManager.PrefabMap["Blood Grow Effect"].pool.Get(out GameObject element2);
-            element2.transform.position = position;
         }
-    }
-
-
-    public void PlayDeathEffect()
-    {
-        CameraController.Instance.SetTarget(null);
-        tweenerTakeFatalDamageEffect?.Kill();
-        tweenerTakeFatalDamageEffect = DOTween.To(value => { colorGrading.saturation.value = value; }, 0f, -60f, 1.2f)
-            .SetEase(Ease.InOutSine);
     }
 
 

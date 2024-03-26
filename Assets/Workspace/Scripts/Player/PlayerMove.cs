@@ -7,6 +7,8 @@ public class PlayerMove : NetworkBehaviour
 {
     public static bool IsEnabled = false;
 
+    private static int HashMoveSpeed = Animator.StringToHash("Move Speed");
+
     [SyncVar] public Vector2Int networkCoordinate = new Vector2Int(-1, -1);
 
     private bool isInitialized = false;
@@ -67,6 +69,8 @@ public class PlayerMove : NetworkBehaviour
         {
             rigidbody.velocity = Vector3.zero;
         }
+
+        player.playerAnimator.SetFloat(HashMoveSpeed, rigidbody.velocity.magnitude * 0.8f);
     }
 
 

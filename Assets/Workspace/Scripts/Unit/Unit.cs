@@ -329,6 +329,7 @@ public class Unit : NetworkBehaviour
     [ClientRpc]
     private void TakeFatalDamageClientRPC(float value, Vector3 position, string destinationName, string sourceName)
     {
+        PopupManager.Instance.PlayDeathEffect(position);
         PopupManager.Instance.PlayFatalDamageEffect(value, position, destinationName, sourceName, hasAuthority, false);
         PopupManager.Instance.PlayKnockDownGlobalEffect(destinationName, sourceName);
     }

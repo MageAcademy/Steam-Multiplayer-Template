@@ -15,6 +15,8 @@ public class Player : NetworkBehaviour
 
     [SyncVar] public ulong networkSteamID = 0L;
 
+    public Animator playerAnimator = null;
+
     public PlayerAppearance playerAppearance = null;
 
     public Transform playerCenter = null;

@@ -12,6 +12,10 @@ public class Outline : MonoBehaviour
 
     public List<Renderer> rendererList = new List<Renderer>();
 
+    public Shader shaderOutline = null;
+
+    public Shader shaderTarget = null;
+
     private Camera m_Camera = null;
 
     private CommandBuffer m_CommandBuffer = null;
@@ -26,7 +30,6 @@ public class Outline : MonoBehaviour
     private void Start()
     {
         Initialize();
-        Draw();
     }
 
 
@@ -46,7 +49,7 @@ public class Outline : MonoBehaviour
     {
         m_Camera = GetComponent<Camera>();
         m_Camera.depthTextureMode = DepthTextureMode.None;
-        m_OutlineMaterial = new Material(Shader.Find("Outline/PostprocessOutline"));
+        m_OutlineMaterial = new Material(shaderOutline);
         m_Mask = new RenderTexture(m_Camera.pixelWidth, m_Camera.pixelHeight, 0, RenderTextureFormat.R8);
         m_Outline = new RenderTexture(m_Camera.pixelWidth, m_Camera.pixelHeight, 0, RenderTextureFormat.R8);
         m_CommandBuffer = new CommandBuffer { name = "Outline Command Buffer" };
@@ -69,7 +72,7 @@ public class Outline : MonoBehaviour
         m_CommandBuffer.ClearRenderTarget(true, true, Color.black);
         for (int a = 0; a < rendererList.Count; ++a)
         {
-            m_CommandBuffer.DrawRenderer(rendererList[a], new Material(Shader.Find("Outline/Target")));
+            m_CommandBuffer.DrawRenderer(rendererList[a], new Material(shaderTarget));
             Graphics.ExecuteCommandBuffer(m_CommandBuffer);
         }
     }
